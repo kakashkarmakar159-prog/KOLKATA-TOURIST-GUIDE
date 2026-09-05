@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="KTG Business Edit Dashboard">
+  <title>KTG — Edit Restaurant</title>
+  <link rel="stylesheet" href="css/edit.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">KTG</div>
+      <div><strong>Kolkata Tourist Guide</strong><span>Business Edit Dashboard</span></div>
+    </div>
+    <div class="top-actions">
+      <a href="/" class="ghost-btn">← Back to Website</a>
+      <button id="lockButton" class="ghost-btn" type="button">🔒 Lock</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="page-head">
+      <div>
+        <div class="eyebrow">KTG MANAGEMENT</div>
+        <h1 id="pageTitle">Edit Restaurant</h1>
+        <p id="pageSubtitle">Update restaurant information and save your changes.</p>
+      </div>
+      <div class="session-pill"><span class="dot"></span><div><b>Protected session</b><small>Edit ID verification required</small></div></div>
+    </section>
+
+    <section id="accessCard" class="access-card">
+      <div class="access-copy"><span class="access-icon">🔐</span><div><b>Secure Edit Access</b><small>Verify your authorized Edit ID to open the business editor.</small></div></div>
+      <div class="access-row">
+        <input id="editId" class="edit-input" type="password" placeholder="Enter Edit ID" autocomplete="off">
+        <button id="verifyButton" class="primary-btn" type="button">✓ Verify Edit ID</button>
+      </div>
+      <div id="statusMessage" class="status info" role="status" aria-live="polite">Enter your Edit ID to continue.</div>
+    </section>
+
+    <section id="entitySection" class="selector-card" hidden>
+      <div class="selector-top">
+        <div><div class="eyebrow">BUSINESS</div><h2>Select Business</h2><p>Choose the business that you want to edit.</p></div>
+        <span class="step-chip">02</span>
+      </div>
+      <div class="selector-grid">
+        <label>Business Type<select id="entityType" class="edit-input"><option value="">Select Type</option><option value="restaurant">🍽️ Restaurant</option><option value="hotel">🏨 Hotel</option></select></label>
+        <label>Business ID<input id="entityId" class="edit-input" placeholder="REST-VICTORIA-MEMORIAL-001" autocomplete="off"></label>
+        <label>Business Name<input id="entityName" class="edit-input" placeholder="Optional business name" autocomplete="off"></label>
+      </div>
+      <div class="selector-actions"><button id="loadButton" class="primary-btn" type="button" disabled>📂 Load Business</button></div>
+    </section>
+
+    <form id="mainEditForm" class="editor" hidden>
+      <div class="editor-top">
+        <div><div class="eyebrow" id="editorType">RESTAURANT</div><h2 id="editorTitle">Edit Restaurant</h2><p id="editorSubtitle"></p></div>
+        <div class="editor-meta"><span>● Live record</span><small id="recordId"></small></div>
+      </div>
+      <div id="editorGrid" class="editor-grid"></div>
+      <div id="saveMessage" class="status" hidden></div>
+      <div class="sticky-save"><button id="resetButton" class="secondary-btn" type="button">↶ Reset</button><button id="logoutBtn" class="secondary-btn" type="button">🔒 Logout</button><button id="saveButton" class="save-btn" type="submit">💾 Save Changes</button></div>
+    </form>
+
+    <section class="security-note"><span>🛡️</span><div><b>KTG Edit System</b><p>Business IDs and protected system fields remain locked. Changes are sent to the KTG backend through the existing admin API.</p></div></section>
+  </main>
+
+  <div id="lockModal" class="modal" hidden><div class="modal-box"><div class="modal-icon">🔒</div><h3>Lock Edit System?</h3><p>Your current editing session will be locked. You will need to verify the Edit ID again.</p><div class="modal-actions"><button id="cancelLockButton" class="secondary-btn" type="button">Cancel</button><button id="confirmLockButton" class="danger-btn" type="button">Lock Dashboard</button></div></div></div>
+
+  <script src="js/edit.js"></script>
+</body>
+</html>

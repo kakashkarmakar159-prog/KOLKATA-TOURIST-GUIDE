@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place | Kolkata Tourist Guide</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/place.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Kolkata <span>Tourist</span> Guide<small>with Akash Karmakar</small></div>
+  <div class="top-actions">
+    <button class="secondary" onclick="location.href='index.html'">← Search</button>
+    <button id="themeBtn" class="icon-btn">☼</button>
+  </div>
+</header>
+
+<main class="place-page">
+  <section id="placeCard" class="place-card"></section>
+
+  <section class="ai-guide">
+    <p class="eyebrow">AI GUIDE</p>
+    <h2>Ask about this place</h2>
+    <div class="ai-box">
+      <div class="spark">✦</div>
+      <h3>Kolkata Tourist AI</h3>
+      <p>Ask about this place, how to reach it, attractions or other available details.</p>
+      <div class="question-row">
+        <input placeholder="Ask a question..." disabled>
+        <button disabled>Send</button>
+      </div>
+      <small>AI connection can be added later.</small>
+    </div>
+  </section>
+</main>
+
+<div id="nameModal" class="modal hidden">
+  <div class="modal-card">
+    <h2>Please enter your name</h2>
+    <input id="nameInput" class="full-input" placeholder="Your name">
+    <button id="joinChatBtn" class="primary">Continue / Join Chat</button>
+  </div>
+</div>
+
+
+<script src="js/place.js"></script>
+</body>
+</html>

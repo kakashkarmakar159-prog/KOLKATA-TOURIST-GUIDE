@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Chat | Kolkata Tourist Guide</title>
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+</head>
+<body>
+  <main class="chat-app">
+    <section class="chat-shell" aria-label="Kolkata Tourist Guide group chat">
+      <header class="chat-titlebar">
+        <button id="backBtn" class="plain-icon" type="button" aria-label="Back">←</button>
+        <div class="title-copy">
+          <div class="brand-title">Kolkata Tourist Guide</div>
+          <div class="name-caption">please name</div>
+          <h1 id="groupTitle">Victorial Memorial</h1>
+        </div>
+      </header>
+
+      <section class="participant-bar" aria-label="Chat participants">
+        <div class="participant-scroll">
+          <div id="members" class="members"></div>
+        </div>
+        <div class="participant-actions">
+          <button id="trackBtn" class="action-icon location-action" type="button" aria-label="Track live locations" title="Track live locations">⌖</button>
+          <button id="themeBtn" class="action-icon" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+        </div>
+      </section>
+
+      <section id="messages" class="messages" aria-live="polite" aria-label="Messages">
+        <div class="today-pill">Today</div>
+      </section>
+
+      <div id="replyBar" class="reply-bar" hidden>
+        <div class="reply-copy"><span>↩ Replying to</span><strong id="replyName"></strong><p id="replyText"></p></div>
+        <button id="cancelReply" type="button" aria-label="Cancel reply">×</button>
+      </div>
+
+      <form id="messageForm" class="composer" autocomplete="off">
+        <div class="composer-inner">
+          <input id="messageInput" placeholder="Type a message..." maxlength="1000" autocomplete="off" aria-label="Message">
+          <button class="send-btn" type="submit" aria-label="Send message" title="Send">➤</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <div id="trackDrawer" class="track-drawer" aria-hidden="true">
+    <div class="track-panel">
+      <header class="track-head">
+        <div>
+          <div class="track-kicker">GROUP TRACKING</div>
+          <h2>Live Location</h2>
+          <p id="trackStatus">Waiting for location…</p>
+        </div>
+        <button id="closeTrack" class="close-track" type="button" aria-label="Close live location">×</button>
+      </header>
+      <div id="liveMap" class="live-map"></div>
+      <div class="location-legend">
+        <div class="legend-title">People sharing location</div>
+        <div class="my-location-row"><span class="dot me"></span><b>You</b><span id="myLocationText">Location not shared</span></div>
+        <div id="otherLocationRows"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nameGate" class="name-gate" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+    <div class="name-card">
+      <div class="gate-icon">💬</div>
+      <div class="gate-kicker">KOLKATA TOURIST GUIDE</div>
+      <h2 id="nameTitle">Join the group chat</h2>
+      <p>Please enter your name to continue.</p>
+      <input id="nameInput" maxlength="60" placeholder="Please enter your name ...." autocomplete="name">
+      <button id="joinBtn" class="join-btn" type="button">Continue to Chat</button>
+      <small id="permissionHint">Location permission is requested when you enter the chat so group members can see your live location.</small>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Kolkata Tourist Guide - Restaurant Information"
+  >
+
+  <title>Restaurant | Kolkata Tourist Guide</title>
+
+  <!-- =====================================================
+       MAIN CSS
+  ====================================================== -->
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="css/restaurant.css"
+  >
+
+</head>
+
+
+<body>
+
+<!-- =========================================================
+     TOP NAVIGATION
+========================================================= -->
+
+<header class="topbar">
+
+  <div class="topbar-left">
+
+    <a
+      href="index.html"
+      class="brand"
+      aria-label="Kolkata Tourist Guide Home"
+    >
+      <span class="brand-icon">🌆</span>
+
+      <span class="brand-text">
+        Kolkata Tourist Guide
+      </span>
+    </a>
+
+  </div>
+
+
+  <nav class="topbar-nav">
+
+    <a href="index.html">
+      Home
+    </a>
+
+    <a href="place.html">
+      Places
+    </a>
+
+    <a href="hotel.html">
+      Hotels
+    </a>
+
+    <a
+      href="restaurant.html"
+      class="active"
+    >
+      Restaurants
+    </a>
+
+    <a href="booking.html">
+      Booking
+    </a>
+
+  </nav>
+
+</header>
+
+
+
+<!-- =========================================================
+     PAGE CONTAINER
+========================================================= -->
+
+<main class="restaurant-page">
+
+
+  <!-- =======================================================
+       BACK BUTTON
+  ======================================================== -->
+
+  <div class="restaurant-page-top">
+
+    <button
+      type="button"
+      id="restaurantBackBtn"
+      class="restaurant-back-link"
+    >
+      ← Back
+    </button>
+
+  </div>
+
+
+
+  <!-- =======================================================
+       RESTAURANT HERO
+  ======================================================== -->
+
+  <section
+    id="restaurantHero"
+    class="restaurant-hero"
+  >
+
+    <!-- JS will populate restaurant image -->
+
+    <div class="restaurant-hero-image-wrapper">
+
+      <img
+        id="restaurantMainImage"
+        class="restaurant-main-image"
+        src=""
+        alt="Restaurant"
+      >
+
+      <div
+        id="restaurantImageFallback"
+        class="restaurant-image-fallback"
+        hidden
+      >
+        🍽️
+      </div>
+
+    </div>
+
+
+
+    <div class="restaurant-hero-content">
+
+      <div class="restaurant-badge-row">
+
+        <span class="restaurant-badge">
+          🍽️ Restaurant
+        </span>
+
+        <span
+          id="restaurantCuisineBadge"
+          class="restaurant-cuisine-badge"
+        >
+          Cuisine
+        </span>
+
+      </div>
+
+
+
+      <h1
+        id="restaurantName"
+        class="restaurant-name"
+      >
+        Restaurant
+      </h1>
+
+
+
+      <p
+        id="restaurantDescription"
+        class="restaurant-description"
+      >
+        Discover this restaurant in Kolkata.
+      </p>
+
+
+
+      <!-- Rating -->
+
+      <div class="restaurant-rating-row">
+
+        <span class="restaurant-stars">
+          ★★★★★
+        </span>
+
+        <strong
+          id="restaurantRating"
+        >
+          0.0
+        </strong>
+
+        <span
+          id="restaurantReviews"
+          class="restaurant-review-count"
+        >
+          0 Reviews
+        </span>
+
+      </div>
+
+
+
+      <!-- Location -->
+
+      <div class="restaurant-location">
+
+        <span class="restaurant-location-icon">
+          📍
+        </span>
+
+        <span id="restaurantAddress">
+          Kolkata
+        </span>
+
+      </div>
+
+
+
+      <!-- =================================================
+           ACTION BUTTONS
+      ================================================== -->
+
+      <div class="restaurant-action-buttons">
+
+
+        <!-- BOOK BUTTON -->
+
+        <button
+          type="button"
+          id="bookRestaurantBtn"
+          class="restaurant-book-now"
+          data-action="book-restaurant"
+        >
+          🍽️ Book Restaurant
+        </button>
+
+
+
+        <!-- EDIT BUTTON -->
+
+        <button
+          type="button"
+          id="editRestaurantBtn"
+          class="restaurant-edit-btn"
+          data-action="edit-restaurant"
+        >
+          ✏️ Edit
+        </button>
+
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =======================================================
+       QUICK INFORMATION
+  ======================================================== -->
+
+  <section class="restaurant-quick-info">
+
+
+    <!-- Cuisine -->
+
+    <div class="restaurant-info-item">
+
+      <div class="restaurant-info-icon">
+        🍛
+      </div>
+
+      <div>
+
+        <span>
+          Cuisine
+        </span>
+
+        <strong id="quickCuisine">
+          —
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Price -->
+
+    <div class="restaurant-info-item">
+
+      <div class="restaurant-info-icon">
+        💰
+      </div>
+
+      <div>
+
+        <span>
+          Price Range
+        </span>
+
+        <strong id="quickPrice">
+          —
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Metro -->
+
+    <div class="restaurant-info-item">
+
+      <div class="restaurant-info-icon">
+        🚇
+      </div>
+
+      <div>
+
+        <span>
+          Nearest Metro
+        </span>
+
+        <strong id="quickMetro">
+          —
+        </strong>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Opening -->
+
+    <div class="restaurant-info-item">
+
+      <div class="restaurant-info-icon">
+        🕐
+      </div>
+
+      <div>
+
+        <span>
+          Opening
+        </span>
+
+        <strong id="quickOpening">
+          —
+        </strong>
+
+      </div>
+
+    </div>
+
+
+  </section>
+
+
+
+  <!-- =======================================================
+       MAIN CONTENT GRID
+  ======================================================== -->
+
+  <div class="restaurant-content-grid">
+
+
+    <!-- =====================================================
+         LEFT CONTENT
+    ====================================================== -->
+
+    <div class="restaurant-main-column">
+
+
+      <!-- ===================================================
+           ABOUT
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            ℹ️
+          </div>
+
+          <div>
+
+            <h2>
+              About Restaurant
+            </h2>
+
+            <p>
+              Restaurant information
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <p
+          id="restaurantAbout"
+          class="restaurant-about-text"
+        >
+          Restaurant information will appear here.
+        </p>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           RESTAURANT GALLERY
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            🖼️
+          </div>
+
+          <div>
+
+            <h2>
+              Restaurant Gallery
+            </h2>
+
+            <p>
+              Explore the restaurant
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div
+          id="restaurantGallery"
+          class="restaurant-gallery"
+        >
+
+          <!-- JS inserts images here -->
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           SPECIALTIES
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            ⭐
+          </div>
+
+          <div>
+
+            <h2>
+              Specialties & Highlights
+            </h2>
+
+            <p>
+              What makes this restaurant special
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div
+          id="restaurantSpecialties"
+          class="restaurant-tags"
+        >
+
+          <!-- JS inserts specialties -->
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           FACILITIES
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            🛎️
+          </div>
+
+          <div>
+
+            <h2>
+              Facilities
+            </h2>
+
+            <p>
+              Available facilities
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div
+          id="restaurantFacilities"
+          class="restaurant-tags"
+        >
+
+          <!-- JS inserts facilities -->
+
+        </div>
+
+      </section>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         RIGHT SIDEBAR
+    ====================================================== -->
+
+    <aside class="restaurant-sidebar">
+
+
+      <!-- ===================================================
+           OPENING HOURS
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            🕐
+          </div>
+
+          <div>
+
+            <h2>
+              Opening Hours
+            </h2>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-hours">
+
+          <div>
+
+            <span>
+              Opening
+            </span>
+
+            <strong
+              id="restaurantOpening"
+            >
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Closing
+            </span>
+
+            <strong
+              id="restaurantClosing"
+            >
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Closed Day
+            </span>
+
+            <strong
+              id="restaurantClosedDay"
+            >
+              None
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           LOCATION
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            📍
+          </div>
+
+          <div>
+
+            <h2>
+              Location
+            </h2>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-location-details">
+
+          <p id="restaurantFullAddress">
+            —
+          </p>
+
+
+          <p>
+
+            <strong>
+              Area:
+            </strong>
+
+            <span id="restaurantArea">
+              —
+            </span>
+
+          </p>
+
+
+          <p>
+
+            <strong>
+              City:
+            </strong>
+
+            <span id="restaurantCity">
+              Kolkata
+            </span>
+
+          </p>
+
+
+          <p>
+
+            <strong>
+              State:
+            </strong>
+
+            <span id="restaurantState">
+              West Bengal
+            </span>
+
+          </p>
+
+
+          <p>
+
+            <strong>
+              Pincode:
+            </strong>
+
+            <span id="restaurantPincode">
+              —
+            </span>
+
+          </p>
+
+
+          <p>
+
+            <strong>
+              Metro:
+            </strong>
+
+            <span id="restaurantMetro">
+              —
+            </span>
+
+          </p>
+
+        </div>
+
+
+
+        <!-- Google Maps -->
+
+        <a
+          href="#"
+          id="restaurantMapBtn"
+          class="restaurant-map-btn"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📍 Open in Google Maps
+        </a>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           CONTACT
+      ==================================================== -->
+
+      <section class="restaurant-card">
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            📞
+          </div>
+
+          <div>
+
+            <h2>
+              Contact
+            </h2>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-contact-list">
+
+
+          <!-- Phone -->
+
+          <a
+            href="#"
+            id="restaurantPhoneLink"
+            class="restaurant-contact-item"
+          >
+
+            <span>
+              📞
+            </span>
+
+            <div>
+
+              <small>
+                Phone
+              </small>
+
+              <strong id="restaurantPhone">
+                —
+              </strong>
+
+            </div>
+
+          </a>
+
+
+
+          <!-- WhatsApp -->
+
+          <a
+            href="#"
+            id="restaurantWhatsappLink"
+            class="restaurant-contact-item"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+
+            <span>
+              💬
+            </span>
+
+            <div>
+
+              <small>
+                WhatsApp
+              </small>
+
+              <strong id="restaurantWhatsapp">
+                —
+              </strong>
+
+            </div>
+
+          </a>
+
+
+
+          <!-- Email -->
+
+          <a
+            href="#"
+            id="restaurantEmailLink"
+            class="restaurant-contact-item"
+          >
+
+            <span>
+              ✉️
+            </span>
+
+            <div>
+
+              <small>
+                Email
+              </small>
+
+              <strong id="restaurantEmail">
+                —
+              </strong>
+
+            </div>
+
+          </a>
+
+
+
+          <!-- Website -->
+
+          <a
+            href="#"
+            id="restaurantWebsiteLink"
+            class="restaurant-contact-item"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+
+            <span>
+              🌐
+            </span>
+
+            <div>
+
+              <small>
+                Official Website
+              </small>
+
+              <strong>
+                Visit Website
+              </strong>
+
+            </div>
+
+          </a>
+
+
+        </div>
+
+      </section>
+
+
+    </aside>
+
+  </div>
+
+</main>
+
+
+
+<!-- =========================================================
+     BOOKING MODAL
+     
+     IMPORTANT:
+     This modal is ONLY for BOOKING.
+     It does NOT contain Edit ID.
+========================================================= -->
+
+<div
+  id="restaurantBookingModal"
+  class="restaurant-modal hidden"
+  aria-hidden="true"
+>
+
+  <div class="restaurant-booking-box">
+
+
+    <div class="restaurant-booking-header">
+
+      <div>
+
+        <div class="restaurant-booking-icon">
+          🍽️
+        </div>
+
+        <div>
+
+          <div class="restaurant-admin-label">
+            RESTAURANT BOOKING
+          </div>
+
+          <h2>
+            Book Restaurant
+          </h2>
+
+          <p>
+            Reserve your table at this restaurant.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <button
+        type="button"
+        id="closeRestaurantBookingModal"
+        class="restaurant-edit-close"
+        aria-label="Close booking"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+
+    <div class="restaurant-booking-content">
+
+
+      <div class="restaurant-booking-restaurant">
+
+        <span>
+          RESTAURANT
+        </span>
+
+        <strong id="restaurantBookingName">
+          Restaurant
+        </strong>
+
+      </div>
+
+
+
+      <form
+        id="restaurantBookingForm"
+      >
+
+
+        <!-- Name -->
+
+        <div class="restaurant-form-group">
+
+          <label for="restaurantBookingGuestName">
+            Your Name
+          </label>
+
+          <input
+            type="text"
+            id="restaurantBookingGuestName"
+            placeholder="Enter your name"
+            required
+          >
+
+        </div>
+
+
+
+        <!-- Phone -->
+
+        <div class="restaurant-form-group">
+
+          <label for="restaurantBookingPhone">
+            Phone Number
+          </label>
+
+          <input
+            type="tel"
+            id="restaurantBookingPhone"
+            placeholder="+91 9876543210"
+            required
+          >
+
+        </div>
+
+
+
+        <!-- Date -->
+
+        <div class="restaurant-form-row">
+
+
+          <div class="restaurant-form-group">
+
+            <label for="restaurantBookingDate">
+              Date
+            </label>
+
+            <input
+              type="date"
+              id="restaurantBookingDate"
+              required
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-form-group">
+
+            <label for="restaurantBookingTime">
+              Time
+            </label>
+
+            <input
+              type="time"
+              id="restaurantBookingTime"
+              required
+            >
+
+          </div>
+
+
+        </div>
+
+
+
+        <!-- Guests -->
+
+        <div class="restaurant-form-group">
+
+          <label for="restaurantBookingGuests">
+            Number of Guests
+          </label>
+
+          <input
+            type="number"
+            id="restaurantBookingGuests"
+            min="1"
+            max="50"
+            value="2"
+            required
+          >
+
+        </div>
+
+
+
+        <!-- Special Request -->
+
+        <div class="restaurant-form-group">
+
+          <label for="restaurantBookingRequest">
+            Special Request
+          </label>
+
+          <textarea
+            id="restaurantBookingRequest"
+            rows="3"
+            placeholder="Any special request?"
+          ></textarea>
+
+        </div>
+
+
+
+        <div
+          id="restaurantBookingStatus"
+          class="restaurant-edit-status"
+        ></div>
+
+
+
+        <button
+          type="submit"
+          id="restaurantConfirmBookingBtn"
+          class="restaurant-primary-btn"
+        >
+          🍽️ Confirm Booking
+        </button>
+
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     EDIT ACCESS MODAL
+     
+     IMPORTANT:
+     ONLY EDIT BUTTON OPENS THIS MODAL.
+========================================================= -->
+
+<div
+  id="restaurantEditAccessModal"
+  class="restaurant-modal hidden"
+  aria-hidden="true"
+>
+
+  <div class="restaurant-edit-access-box">
+
+
+    <!-- =====================================================
+         EDIT ACCESS HEADER
+    ====================================================== -->
+
+    <div class="restaurant-edit-header">
+
+
+      <div class="restaurant-edit-header-left">
+
+        <div class="restaurant-admin-icon">
+          🔐
+        </div>
+
+
+        <div>
+
+          <div class="restaurant-admin-label">
+            RESTAURANT MANAGEMENT
+          </div>
+
+          <h2>
+            Verify Edit Access
+          </h2>
+
+          <p>
+            Enter the restaurant-specific Edit ID to continue.
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <button
+        type="button"
+        id="closeRestaurantEditAccess"
+        class="restaurant-edit-close"
+        aria-label="Close edit access"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         EDIT ACCESS CONTENT
+    ====================================================== -->
+
+    <div class="restaurant-edit-access-content">
+
+
+      <div class="restaurant-edit-target">
+
+        <span>
+          EDITING RESTAURANT
+        </span>
+
+        <strong id="restaurantEditTargetName">
+          Restaurant
+        </strong>
+
+      </div>
+
+
+
+      <form id="restaurantEditAccessForm">
+
+
+        <div class="restaurant-form-group">
+
+          <label for="restaurantEditIdInput">
+            Restaurant Edit ID
+          </label>
+
+          <input
+            type="password"
+            id="restaurantEditIdInput"
+            placeholder="Enter your Edit ID"
+            autocomplete="off"
+            required
+          >
+
+        </div>
+
+
+
+        <div
+          id="restaurantEditAccessError"
+          class="restaurant-edit-access-error"
+          role="alert"
+        ></div>
+
+
+
+        <button
+          type="submit"
+          id="restaurantVerifyEditBtn"
+          class="restaurant-primary-btn"
+        >
+          🔓 Verify & Continue
+        </button>
+
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     RESTAURANT EDIT DASHBOARD
+     
+     IMPORTANT:
+     Separate ID from Edit Access Modal.
+     No duplicate restaurantEditAccessModal here.
+========================================================= -->
+
+<div
+  id="restaurantEditPanel"
+  class="restaurant-modal hidden"
+  aria-hidden="true"
+>
+
+
+  <div class="restaurant-edit-dashboard">
+
+
+    <!-- =====================================================
+         DASHBOARD HEADER
+    ====================================================== -->
+
+    <div class="restaurant-dashboard-header">
+
+
+      <div class="restaurant-dashboard-title">
+
+
+        <div class="restaurant-dashboard-title-icon">
+          ✏️
+        </div>
+
+
+        <div>
+
+          <div class="restaurant-admin-label">
+            RESTAURANT MANAGEMENT
+          </div>
+
+          <h2>
+            Edit Restaurant
+          </h2>
+
+          <p>
+            Update restaurant information and save your changes.
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <button
+        type="button"
+        id="closeRestaurantEditPanel"
+        class="restaurant-back-btn"
+      >
+        ← Back to Restaurant
+      </button>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         EDIT FORM
+    ====================================================== -->
+
+    <form
+      id="restaurantEditForm"
+      class="restaurant-dashboard-form"
+    >
+
+
+      <!-- ===================================================
+           BASIC INFORMATION
+      ==================================================== -->
+
+      <section class="restaurant-edit-card">
+
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            🍽️
+          </div>
+
+          <div>
+
+            <h3>
+              Basic Information
+            </h3>
+
+            <p>
+              Restaurant identity and general information
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-edit-grid">
+
+
+          <!-- Name -->
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantName">
+              Restaurant Name
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantName"
+              placeholder="Enter restaurant name"
+              required
+            >
+
+          </div>
+
+
+
+          <!-- ID -->
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantId">
+              Restaurant ID
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantId"
+              readonly
+            >
+
+            <small>
+              Restaurant ID cannot be changed.
+            </small>
+
+          </div>
+
+
+
+          <!-- Description -->
+
+          <div class="restaurant-edit-field full">
+
+            <label for="editRestaurantDescription">
+              Description
+              <span>*</span>
+            </label>
+
+            <textarea
+              id="editRestaurantDescription"
+              rows="4"
+              placeholder="Write a short description about the restaurant..."
+              required
+            ></textarea>
+
+          </div>
+
+
+
+          <!-- Cuisine -->
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantCuisine">
+              Cuisine Type
+            </label>
+
+            <select id="editRestaurantCuisine">
+
+              <option value="">
+                Select cuisine
+              </option>
+
+              <option value="Bengali">
+                Bengali
+              </option>
+
+              <option value="Indian">
+                Indian
+              </option>
+
+              <option value="Chinese">
+                Chinese
+              </option>
+
+              <option value="Continental">
+                Continental
+              </option>
+
+              <option value="Mughlai">
+                Mughlai
+              </option>
+
+              <option value="North Indian">
+                North Indian
+              </option>
+
+              <option value="South Indian">
+                South Indian
+              </option>
+
+              <option value="Multi Cuisine">
+                Multi Cuisine
+              </option>
+
+              <option value="Other">
+                Other
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- Price -->
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantPrice">
+              Price Range
+            </label>
+
+            <select id="editRestaurantPrice">
+
+              <option value="">
+                Select price range
+              </option>
+
+              <option value="₹">
+                ₹ — Budget
+              </option>
+
+              <option value="₹₹">
+                ₹₹ — Moderate
+              </option>
+
+              <option value="₹₹₹">
+                ₹₹₹ — Premium
+              </option>
+
+              <option value="₹₹₹₹">
+                ₹₹₹₹ — Luxury
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- Rating -->
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantRating">
+              Average Rating
+            </label>
+
+            <input
+              type="number"
+              id="editRestaurantRating"
+              min="0"
+              max="5"
+              step="0.1"
+              placeholder="4.5"
+            >
+
+          </div>
+
+
+
+          <!-- Reviews -->
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantReviews">
+              Reviews
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantReviews"
+              placeholder="120 Reviews"
+            >
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           LOCATION
+      ==================================================== -->
+
+      <section class="restaurant-edit-card">
+
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            📍
+          </div>
+
+          <div>
+
+            <h3>
+              Location Information
+            </h3>
+
+            <p>
+              Restaurant address and map information
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-edit-grid">
+
+
+          <div class="restaurant-edit-field full">
+
+            <label for="editRestaurantAddress">
+              Full Address
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantAddress"
+              placeholder="Enter complete restaurant address"
+              required
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantArea">
+              Area / Locality
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantArea"
+              placeholder="e.g. Park Street"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantMetro">
+              Nearest Metro
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantMetro"
+              placeholder="Nearest Metro Station"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantCity">
+              City
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantCity"
+              placeholder="Kolkata"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantState">
+              State
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantState"
+              placeholder="West Bengal"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantPincode">
+              Pincode
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantPincode"
+              placeholder="700001"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantLatitude">
+              Latitude
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantLatitude"
+              placeholder="22.5668"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantLongitude">
+              Longitude
+            </label>
+
+            <input
+              type="text"
+              id="editRestaurantLongitude"
+              placeholder="88.3467"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field full">
+
+            <label for="editRestaurantMap">
+              Google Maps Link
+            </label>
+
+            <input
+              type="url"
+              id="editRestaurantMap"
+              placeholder="https://maps.google.com/..."
+            >
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           CONTACT
+      ==================================================== -->
+
+      <section class="restaurant-edit-card">
+
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            📞
+          </div>
+
+          <div>
+
+            <h3>
+              Contact Information
+            </h3>
+
+            <p>
+              Phone, email and online contact details
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-edit-grid">
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantPhone">
+              Phone Number
+            </label>
+
+            <input
+              type="tel"
+              id="editRestaurantPhone"
+              placeholder="+91 9876543210"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantWhatsapp">
+              WhatsApp Number
+            </label>
+
+            <input
+              type="tel"
+              id="editRestaurantWhatsapp"
+              placeholder="+91 9876543210"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantAlternatePhone">
+              Alternate Phone
+            </label>
+
+            <input
+              type="tel"
+              id="editRestaurantAlternatePhone"
+              placeholder="+91 9123456780"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantEmail">
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              id="editRestaurantEmail"
+              placeholder="info@restaurant.com"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantWebsite">
+              Official Website
+            </label>
+
+            <input
+              type="url"
+              id="editRestaurantWebsite"
+              placeholder="https://restaurant.com"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantBooking">
+              Booking Link
+            </label>
+
+            <input
+              type="url"
+              id="editRestaurantBooking"
+              placeholder="https://..."
+            >
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           IMAGES
+      ==================================================== -->
+
+      <section class="restaurant-edit-card">
+
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            🖼️
+          </div>
+
+          <div>
+
+            <h3>
+              Restaurant Images
+            </h3>
+
+            <p>
+              Paste direct image URLs
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-image-url-info">
+
+          <strong>
+            🔗 Image URL Only
+          </strong>
+
+          <span>
+            Paste a direct image URL such as
+            https://example.com/photo.jpg
+          </span>
+
+        </div>
+
+
+
+        <div class="restaurant-image-url-grid">
+
+
+          <!-- IMAGE 1 -->
+
+          <div class="restaurant-image-url-card">
+
+            <div class="restaurant-image-number">
+              01
+            </div>
+
+            <div class="restaurant-edit-field">
+
+              <label for="editRestaurantImage">
+                Main Restaurant Photo
+              </label>
+
+              <input
+                type="url"
+                id="editRestaurantImage"
+                placeholder="https://example.com/restaurant-1.jpg"
+              >
+
+            </div>
+
+            <div
+              id="restaurantImagePreview1"
+              class="restaurant-image-preview"
+            >
+              <span>
+                🖼️ Image Preview
+              </span>
+            </div>
+
+          </div>
+
+
+
+          <!-- IMAGE 2 -->
+
+          <div class="restaurant-image-url-card">
+
+            <div class="restaurant-image-number">
+              02
+            </div>
+
+            <div class="restaurant-edit-field">
+
+              <label for="editRestaurantImage2">
+                Restaurant Photo 2
+              </label>
+
+              <input
+                type="url"
+                id="editRestaurantImage2"
+                placeholder="https://example.com/restaurant-2.jpg"
+              >
+
+            </div>
+
+            <div
+              id="restaurantImagePreview2"
+              class="restaurant-image-preview"
+            >
+              <span>
+                🖼️ Image Preview
+              </span>
+            </div>
+
+          </div>
+
+
+
+          <!-- IMAGE 3 -->
+
+          <div class="restaurant-image-url-card">
+
+            <div class="restaurant-image-number">
+              03
+            </div>
+
+            <div class="restaurant-edit-field">
+
+              <label for="editRestaurantImage3">
+                Restaurant Photo 3
+              </label>
+
+              <input
+                type="url"
+                id="editRestaurantImage3"
+                placeholder="https://example.com/restaurant-3.jpg"
+              >
+
+            </div>
+
+            <div
+              id="restaurantImagePreview3"
+              class="restaurant-image-preview"
+            >
+              <span>
+                🖼️ Image Preview
+              </span>
+            </div>
+
+          </div>
+
+
+
+          <!-- IMAGE 4 -->
+
+          <div class="restaurant-image-url-card">
+
+            <div class="restaurant-image-number">
+              04
+            </div>
+
+            <div class="restaurant-edit-field">
+
+              <label for="editRestaurantImage4">
+                Restaurant Photo 4
+              </label>
+
+              <input
+                type="url"
+                id="editRestaurantImage4"
+                placeholder="https://example.com/restaurant-4.jpg"
+              >
+
+            </div>
+
+            <div
+              id="restaurantImagePreview4"
+              class="restaurant-image-preview"
+            >
+              <span>
+                🖼️ Image Preview
+              </span>
+            </div>
+
+          </div>
+
+
+
+          <!-- IMAGE 5 -->
+
+          <div class="restaurant-image-url-card">
+
+            <div class="restaurant-image-number">
+              05
+            </div>
+
+            <div class="restaurant-edit-field">
+
+              <label for="editRestaurantImage5">
+                Restaurant Photo 5
+              </label>
+
+              <input
+                type="url"
+                id="editRestaurantImage5"
+                placeholder="https://example.com/restaurant-5.jpg"
+              >
+
+            </div>
+
+            <div
+              id="restaurantImagePreview5"
+              class="restaurant-image-preview"
+            >
+              <span>
+                🖼️ Image Preview
+              </span>
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           MORE INFORMATION
+      ==================================================== -->
+
+      <section class="restaurant-edit-card">
+
+
+        <div class="restaurant-card-heading">
+
+          <div class="restaurant-card-heading-icon">
+            ℹ️
+          </div>
+
+          <div>
+
+            <h3>
+              More Information
+            </h3>
+
+            <p>
+              Opening hours, seating and restaurant facilities
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="restaurant-edit-grid">
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantOpening">
+              Opening Time
+            </label>
+
+            <input
+              type="time"
+              id="editRestaurantOpening"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantClosing">
+              Closing Time
+            </label>
+
+            <input
+              type="time"
+              id="editRestaurantClosing"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantClosedDay">
+              Closed Day
+            </label>
+
+            <select id="editRestaurantClosedDay">
+
+              <option value="None">
+                None
+              </option>
+
+              <option value="Monday">
+                Monday
+              </option>
+
+              <option value="Tuesday">
+                Tuesday
+              </option>
+
+              <option value="Wednesday">
+                Wednesday
+              </option>
+
+              <option value="Thursday">
+                Thursday
+              </option>
+
+              <option value="Friday">
+                Friday
+              </option>
+
+              <option value="Saturday">
+                Saturday
+              </option>
+
+              <option value="Sunday">
+                Sunday
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field">
+
+            <label for="editRestaurantCapacity">
+              Seating Capacity
+            </label>
+
+            <input
+              type="number"
+              id="editRestaurantCapacity"
+              min="0"
+              placeholder="120"
+            >
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field full">
+
+            <label for="editRestaurantFacilities">
+              Facilities
+            </label>
+
+            <textarea
+              id="editRestaurantFacilities"
+              rows="3"
+              placeholder="Parking, Free WiFi, Card Payment, Air Conditioned, Wheelchair Accessible"
+            ></textarea>
+
+            <small>
+              Separate facilities using commas.
+            </small>
+
+          </div>
+
+
+
+          <div class="restaurant-edit-field full">
+
+            <label for="editRestaurantSpecialties">
+              Specialties / Highlights
+            </label>
+
+            <textarea
+              id="editRestaurantSpecialties"
+              rows="3"
+              placeholder="Rooftop Dining, Live Music, River View, Romantic Ambiance"
+            ></textarea>
+
+          </div>
+
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ===================================================
+           SAVE STATUS
+      ==================================================== -->
+
+      <div
+        id="restaurantEditStatus"
+        class="restaurant-edit-status"
+        role="status"
+      ></div>
+
+
+
+      <!-- ===================================================
+           SAVE BAR
+      ==================================================== -->
+
+      <div class="restaurant-save-bar">
+
+
+        <button
+          type="button"
+          id="restaurantCancelEditBtn"
+          class="restaurant-cancel-btn"
+        >
+          Cancel
+        </button>
+
+
+
+        <button
+          type="submit"
+          id="restaurantSaveChangesBtn"
+          class="restaurant-save-btn"
+        >
+          💾 Save Changes
+        </button>
+
+
+      </div>
+
+
+    </form>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     LOADING OVERLAY
+========================================================= -->
+
+<div
+  id="restaurantLoading"
+  class="restaurant-loading hidden"
+  aria-hidden="true"
+>
+
+  <div class="restaurant-loading-box">
+
+    <div class="restaurant-loader">
+      ⏳
+    </div>
+
+    <p>
+      Loading restaurant...
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<div id="restaurantApp"></div>
+
+<script src="js/restaurant.js"></script>
+
+
+</body>
+</html>

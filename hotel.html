@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kolkata Tourist Guide — Hotel details, booking and secure hotel editing">
+  <title>Hotels | Kolkata Tourist Guide</title>
+  <link rel="stylesheet" href="css/hotel.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">KTG</div>
+    <div><strong>Kolkata Tourist Guide</strong><span>Hotels & Stays</span></div>
+  </div>
+  <div class="top-actions">
+    <button id="backBtn" class="ghost">← Back</button>
+    <button id="themeBtn" class="icon-btn" aria-label="Toggle theme">☼</button>
+  </div>
+</header>
+
+<main class="page">
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">STAY NEAR YOUR DESTINATION</span>
+      <h1 id="heroTitle">Find a comfortable stay in Kolkata</h1>
+      <p id="heroText">Hotel information is loaded directly from the JSON data used by KTG.</p>
+      <div class="hero-stats">
+        <div><b id="hotelCount">0</b><span>Hotels</span></div>
+        <div><b id="placeLabel">—</b><span>Destination</span></div>
+      </div>
+    </div>
+    <div id="heroVisual" class="hero-visual" aria-label="Hotel visual placeholder">
+      <div class="hotel-building">🏨</div>
+      <span>Hotel data</span>
+    </div>
+  </section>
+
+  <section class="layout">
+    <section>
+      <div class="section-head">
+        <div><span class="eyebrow">AVAILABLE HOTELS</span><h2 id="placeName">Kolkata</h2></div>
+        <input id="hotelSearch" class="search" type="search" placeholder="Search hotel, area, category...">
+      </div>
+      <div id="hotelCards" class="cards"></div>
+    </section>
+
+    <aside id="details" class="details">
+      <div class="empty"><div>🏨</div><h3>Select a hotel</h3><p>Choose a hotel to view complete details.</p></div>
+    </aside>
+  </section>
+
+  <section class="notice">
+    <strong>Booking note</strong>
+    <span>This interface collects a booking request. It does not process payment or guarantee live room availability.</span>
+  </section>
+</main>
+
+<div id="bookingModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card">
+    <button class="close" data-close="bookingModal">×</button>
+    <span class="eyebrow">BOOKING REQUEST</span>
+    <h2 id="bookingHotelName">Hotel</h2>
+    <form id="bookingForm">
+      <div class="grid2">
+        <label>Guest name<input id="guestName" required></label>
+        <label>Phone<input id="guestPhone" type="tel" required></label>
+      </div>
+      <div class="grid2">
+        <label>Guests<select id="guestCount"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <label>Room<select id="roomSelect" required></select></label>
+      </div>
+      <div class="grid2">
+        <label>Check-in<input id="checkIn" type="date" required></label>
+        <label>Check-out<input id="checkOut" type="date" required></label>
+      </div>
+      <label>Address / message<textarea id="guestAddress" rows="3" placeholder="Optional"></textarea></label>
+      <div class="booking-summary"><span>Selected room</span><b id="selectedRoomPrice">—</b></div>
+      <button class="primary" type="submit">Confirm Booking Request</button>
+    </form>
+    <div id="bookingResult" class="result"></div>
+  </div>
+</div>
+
+<div id="editAccessModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card compact">
+    <button class="close" data-close="editAccessModal">×</button>
+    <span class="eyebrow">SECURE HOTEL EDIT</span>
+    <h2 id="editTargetName">Hotel</h2>
+    <p>Enter the hotel-specific Verification / Edit ID stored in the JSON data. The master admin ID is also supported.</p>
+    <form id="editAccessForm">
+      <label>Verification / Edit ID<input id="hotelEditId" autocomplete="off" required placeholder="KTG-HOTEL-..."></label>
+      <button class="primary" type="submit" id="verifyHotelBtn">Verify ID</button>
+    </form>
+    <div id="editAccessError" class="error"></div>
+  </div>
+</div>
+
+<div id="editModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card wide">
+    <button class="close" data-close="editModal">×</button>
+    <span class="eyebrow">HOTEL EDITOR</span>
+    <h2 id="editTitle">Edit hotel</h2>
+    <form id="hotelEditForm"></form>
+  </div>
+</div>
+
+<script src="js/hotel.js"></script>
+</body>
+</html>

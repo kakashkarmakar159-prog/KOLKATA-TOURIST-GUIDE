@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking | Kolkata Tourist Guide</title>
+<link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+<header class="booking-topbar">
+  <div class="brand-wrap">
+    <div class="brand-mark">🌿</div>
+    <div>
+      <div id="brandName" class="brand-name">Kolkata Tourist Guide</div>
+      <div id="brandSub" class="brand-sub">BOOKING</div>
+    </div>
+  </div>
+  <a class="back-link" id="backLink" href="javascript:history.back()">← <span id="backText">Back</span></a>
+</header>
+
+<main class="booking-shell">
+<section class="booking-card">
+  <div class="booking-intro">
+    <span class="eyebrow" id="introEyebrow">BOOKING</span>
+    <h1 id="pageTitle">Make a Booking</h1>
+    <p id="pageSubtitle">Enter your details and submit your booking request.</p>
+  </div>
+
+  <form id="bookingForm" novalidate>
+    <input type="hidden" id="entityType">
+    <input type="hidden" id="entityName">
+    <input type="hidden" id="entityId">
+
+    <div class="selected-box">
+      <div>
+        <span class="label">Booking For</span>
+        <strong id="selectedName">Loading...</strong>
+      </div>
+      <span id="selectedType" class="type-pill">—</span>
+    </div>
+
+    <!-- ================= RESTAURANT ================= -->
+    <div id="restaurantFields" class="booking-mode hidden">
+      <div class="form-section">
+        <div class="section-title">
+          <span class="section-icon">👤</span>
+          <div><h2>Guest Information</h2><p>Tell us how we can contact you.</p></div>
+        </div>
+        <div class="form-grid">
+          <label>
+            <span>Full Name <b>*</b></span>
+            <input id="rCustomerName" type="text" maxlength="80" placeholder="Enter your full name" autocomplete="name">
+          </label>
+          <label>
+            <span>Email Address <b>*</b></span>
+            <input id="rEmail" type="email" maxlength="120" placeholder="Enter your email address" autocomplete="email">
+          </label>
+          <label>
+            <span>Phone Number <b>*</b></span>
+            <div class="phone-row">
+              <select id="rCountryCode" aria-label="Country code">
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+880">🇧🇩 +880</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+61">🇦🇺 +61</option>
+              </select>
+              <input id="rPhone" type="tel" inputmode="numeric" maxlength="15" placeholder="Enter your phone number" autocomplete="tel-national">
+            </div>
+          </label>
+          <label class="full">
+            <span>Country / Nationality <b>*</b></span>
+            <select id="rNationality">
+              <option value="">Select your country</option>
+              <option>India</option><option>Bangladesh</option><option>Nepal</option>
+              <option>Bhutan</option><option>Sri Lanka</option><option>United States</option>
+              <option>United Kingdom</option><option>Australia</option><option>Canada</option><option>Other</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">
+          <span class="section-icon">🎂</span>
+          <div><h2>Special Occasion <small>(Optional)</small></h2></div>
+        </div>
+        <select id="rOccasion">
+          <option value="">Select occasion (e.g., Birthday, Anniversary)</option>
+          <option>Birthday</option><option>Anniversary</option><option>Business Dinner</option>
+          <option>Family Gathering</option><option>Date Night</option><option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">
+          <span class="section-icon">📅</span>
+          <div><h2>Booking Details</h2></div>
+        </div>
+        <div class="form-grid">
+          <label>
+            <span>Date <b>*</b></span>
+            <input id="rDate" type="date">
+          </label>
+          <label>
+            <span>Time <b>*</b></span>
+            <select id="rTime">
+              <option value="">Select time</option>
+              <option>12:00 PM</option><option>12:30 PM</option><option>1:00 PM</option><option>1:30 PM</option>
+              <option>2:00 PM</option><option>2:30 PM</option><option>6:30 PM</option><option>7:00 PM</option>
+              <option>7:30 PM</option><option>8:00 PM</option><option>8:30 PM</option><option>9:00 PM</option>
+              <option>9:30 PM</option><option>10:00 PM</option>
+            </select>
+          </label>
+          <label>
+            <span>Number of Guests <b>*</b></span>
+            <select id="rGuests">
+              <option value="">Select number of guests</option>
+              <option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option>
+              <option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6 Guests</option>
+              <option value="7">7 Guests</option><option value="8">8 Guests</option><option value="9">9 Guests</option>
+              <option value="10">10 Guests</option><option value="11">11 Guests</option><option value="12">12 Guests</option>
+            </select>
+          </label>
+          <label>
+            <span>Table Preference <small>(Optional)</small></span>
+            <select id="rTable">
+              <option value="">Select preference</option>
+              <option>Indoor</option><option>Outdoor</option><option>Window Seat</option>
+              <option>Quiet Area</option><option>Bar / Lounge</option><option>Private Dining</option><option>No Preference</option>
+            </select>
+            <em>We'll do our best to accommodate your preference.</em>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">
+          <span class="section-icon">🍴</span>
+          <div><h2>Dining Preferences <small>(Optional)</small></h2></div>
+        </div>
+        <div class="form-grid">
+          <label>
+            <span>Seating Area</span>
+            <select id="rSeating">
+              <option value="">Select seating area</option>
+              <option>Indoor</option><option>Outdoor</option><option>Private Dining</option>
+              <option>Rooftop</option><option>Window Side</option><option>No Preference</option>
+            </select>
+          </label>
+          <label>
+            <span>Dietary Preference</span>
+            <select id="rDiet">
+              <option value="">Select preference</option>
+              <option>None</option><option>Vegetarian</option><option>Vegan</option>
+              <option>Jain</option><option>Halal</option><option>Gluten Free</option><option>Other</option>
+            </select>
+          </label>
+          <label class="full">
+            <span>Additional Requests</span>
+            <textarea id="rRequests" maxlength="500" placeholder="Any special requests or preferences?"></textarea>
+            <em>e.g. Window seat, High chair, Allergy information, etc.</em>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= HOTEL: PRESERVED WORKING FLOW ================= -->
+    <div id="hotelFields" class="booking-mode hidden">
+      <div class="form-section">
+        <div class="section-title"><span class="section-icon">👤</span><div><h2>Guest Information</h2></div></div>
+        <div class="form-grid">
+          <label><span>Full Name <b>*</b></span><input id="hCustomerName" type="text" maxlength="80" placeholder="Enter your full name" autocomplete="name"></label>
+          <label><span>Mobile Number <b>*</b></span><input id="hPhone" type="tel" inputmode="numeric" maxlength="15" placeholder="Enter mobile number" autocomplete="tel"></label>
+          <label class="full"><span>Email Address</span><input id="hEmail" type="email" maxlength="120" placeholder="Enter your email address" autocomplete="email"></label>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-title"><span class="section-icon">📅</span><div><h2>Stay Information</h2></div></div>
+        <div class="form-grid">
+          <label><span>Check-in Date <b>*</b></span><input id="hCheckin" type="date"></label>
+          <label><span>Check-out Date <b>*</b></span><input id="hCheckout" type="date"></label>
+          <label><span>Number of Guests <b>*</b></span><select id="hGuests">
+            <option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option>
+            <option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6 Guests</option>
+            <option value="7">7 Guests</option><option value="8">8 Guests</option><option value="9">9 Guests</option><option value="10">10 Guests</option>
+          </select></label>
+          <label id="roomTypeWrap"><span>Room Type</span><select id="roomType"><option value="">Select room type</option></select></label>
+        </div>
+      </div>
+      <div class="form-section"><div class="section-title"><span class="section-icon">📝</span><div><h2>Special Requests <small>(Optional)</small></h2></div></div><textarea id="hRequests" maxlength="500" placeholder="Any special requests or preferences?"></textarea></div>
+      <div class="form-section"><div class="section-title"><span class="section-icon">📍</span><div><h2>Guest Address <small>(Optional)</small></h2></div></div><input id="hAddress" maxlength="250" placeholder="Enter your address"></div>
+    </div>
+
+    <div class="contact-preview" id="contactPreview">
+      <span>Booking will be sent to</span>
+      <strong id="businessContactPreview">Loading contact…</strong>
+    </div>
+
+    <label class="terms">
+      <input id="terms" type="checkbox">
+      <span>I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Privacy Policy</a></span>
+    </label>
+
+    <div id="message" class="message" role="alert" aria-live="polite"></div>
+
+    <button id="submitBtn" class="confirm-btn" type="submit">
+      <span id="submitText">Confirm Booking</span><span class="arrow">→</span><span id="spinner" class="spinner hidden"></span>
+    </button>
+  </form>
+
+  <div id="successPanel" class="success-panel hidden">
+    <div class="success-icon">✓</div>
+    <h2>Booking Request Ready</h2>
+    <p>Your booking details have been prepared and WhatsApp has been opened.</p>
+    <div class="booking-id-box"><span>Booking ID</span><strong id="bookingId">—</strong></div>
+    <button type="button" id="newBookingBtn" class="secondary-btn">Make Another Booking</button>
+  </div>
+</section>
+</main>
+<script src="js/booking.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Location | Kolkata Tourist Guide</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Live Location</div>
+  <button class="secondary" onclick="history.back()">← Back</button>
+</header>
+<main class="map-page">
+  <div class="map-notice">
+    <h2>Group Live Location</h2>
+    <p>Members of the same chat group can appear here when they share their browser location.</p>
+  </div>
+  <div id="mapCanvas" class="map-canvas">
+    <div class="map-grid"></div>
+    <div id="markers"></div>
+    <div class="map-center">Map area — connect a map provider here</div>
+  </div>
+  <div id="locationStatus" class="status">Requesting your location…</div>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/map.js"></script>
+</body>
+</html>
