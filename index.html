@@ -1,755 +1,1128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Kolkata Tourist Guide</title>
-
-    <style>
-        /* ==============================
-           RESET
-        ============================== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: Arial, "Noto Sans Bengali", sans-serif;
-            background: #f7f6ff;
-            color: #17152f;
-            min-height: 100vh;
-        }
-
-        button,
-        input {
-            font: inherit;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        /* ==============================
-           HEADER
-        ============================== */
-        header {
-            width: 100%;
-            background: rgba(255,255,255,0.96);
-            border-bottom: 1px solid #e8e5f0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar {
-            max-width: 1200px;
-            margin: auto;
-            min-height: 76px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-logo {
-            width: 46px;
-            height: 46px;
-            border-radius: 13px;
-            background: linear-gradient(135deg,#6c4cff,#8c68ff);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 18px;
-        }
-
-        .brand-text h1 {
-            font-size: 18px;
-            margin-bottom: 3px;
-        }
-
-        .brand-text p {
-            font-size: 12px;
-            color: #77738b;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .icon-btn {
-            width: 44px;
-            height: 44px;
-            border: 1px solid #ddd9e9;
-            background: white;
-            border-radius: 12px;
-            font-size: 20px;
-        }
-
-        .icon-btn:hover {
-            background: #f0edff;
-        }
-
-        /* ==============================
-           HERO
-        ============================== */
-        .hero {
-            max-width: 1200px;
-            margin: 28px auto;
-            padding: 55px 42px;
-            border-radius: 28px;
-            background: linear-gradient(135deg,#24204f,#443d88);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            width: 420px;
-            height: 420px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-            right: -130px;
-            bottom: -220px;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 750px;
-        }
-
-        .eyebrow {
-            color: #b9b1ff;
-            font-weight: bold;
-            letter-spacing: 2px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        .hero h2 {
-            font-size: clamp(38px, 6vw, 68px);
-            line-height: 1.05;
-            margin-bottom: 22px;
-        }
-
-        .hero p {
-            color: #dddaf4;
-            font-size: 16px;
-            line-height: 1.7;
-            max-width: 700px;
-        }
-
-        /* ==============================
-           SEARCH
-        ============================== */
-        .search-box {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-            display: flex;
-            gap: 12px;
-        }
-
-        .search-box input {
-            flex: 1;
-            min-height: 52px;
-            border: 1px solid #d9d5e6;
-            border-radius: 14px;
-            padding: 0 17px;
-            outline: none;
-            background: white;
-        }
-
-        .search-box input:focus {
-            border-color: #6c4cff;
-            box-shadow: 0 0 0 3px rgba(108,76,255,0.12);
-        }
-
-        .search-btn {
-            min-width: 110px;
-            border: 0;
-            border-radius: 14px;
-            background: #6c4cff;
-            color: white;
-            font-weight: bold;
-        }
-
-        .search-btn:hover {
-            background: #5639dc;
-        }
-
-        /* ==============================
-           SECTION
-        ============================== */
-        .section {
-            max-width: 1200px;
-            margin: 35px auto;
-            padding: 0 20px;
-        }
-
-        .section-label {
-            color: #7259ff;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-        }
-
-        .section h3 {
-            font-size: 30px;
-            margin-bottom: 22px;
-        }
-
-        /* ==============================
-           PLACE CARDS
-        ============================== */
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            border: 1px solid #e5e1ef;
-            border-radius: 20px;
-            overflow: hidden;
-            transition: 0.25s ease;
-            box-shadow: 0 8px 25px rgba(37,30,70,0.06);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 16px 35px rgba(37,30,70,0.12);
-        }
-
-        .card-image {
-            width: 100%;
-            height: 190px;
-            background: linear-gradient(135deg,#ddd8f7,#f0eef8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #77738b;
-            font-size: 14px;
-        }
-
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .card-body h4 {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-
-        .card-body p {
-            color: #747080;
-            line-height: 1.6;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .view-btn {
-            width: 100%;
-            height: 44px;
-            border: 0;
-            border-radius: 11px;
-            background: #17152f;
-            color: white;
-            font-weight: bold;
-        }
-
-        .view-btn:hover {
-            background: #6c4cff;
-        }
-
-        /* ==============================
-           LOCATION
-        ============================== */
-        .location-box {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 24px 20px;
-            background: white;
-            border: 1px solid #e4e0ed;
-            border-radius: 18px;
-        }
-
-        .location-box h3 {
-            margin-bottom: 10px;
-        }
-
-        .location-box p {
-            color: #706c7c;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .location-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .location-buttons button {
-            padding: 12px 18px;
-            border-radius: 10px;
-            border: 1px solid #d7d3e4;
-            background: white;
-        }
-
-        .location-buttons button:first-child {
-            background: #6c4cff;
-            color: white;
-            border-color: #6c4cff;
-        }
-
-        /* ==============================
-           FOOTER
-        ============================== */
-        footer {
-            text-align: center;
-            padding: 35px 20px;
-            color: #77738b;
-            font-size: 14px;
-        }
-
-        /* ==============================
-           DARK MODE
-        ============================== */
-        body.dark {
-            background: #0e1019;
-            color: #f5f3ff;
-        }
-
-        body.dark header,
-        body.dark .card,
-        body.dark .location-box,
-        body.dark .search-box input,
-        body.dark .icon-btn {
-            background: #171a27;
-            border-color: #2d3040;
-            color: #f5f3ff;
-        }
-
-        body.dark .brand-text p,
-        body.dark .card-body p,
-        body.dark .location-box p {
-            color: #aaa7b9;
-        }
-
-        body.dark .view-btn {
-            background: #6c4cff;
-        }
-
-        /* ==============================
-           MOBILE
-        ============================== */
-        @media (max-width: 850px) {
-
-            .navbar {
-                min-height: 68px;
-            }
-
-            .hero {
-                margin: 18px 12px;
-                padding: 38px 24px;
-                border-radius: 22px;
-            }
-
-            .hero h2 {
-                font-size: 40px;
-            }
-
-            .cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 560px) {
-
-            .brand-text h1 {
-                font-size: 15px;
-            }
-
-            .header-buttons {
-                gap: 5px;
-            }
-
-            .icon-btn {
-                width: 39px;
-                height: 39px;
-            }
-
-            .search-box {
-                flex-direction: column;
-            }
-
-            .search-btn {
-                height: 48px;
-            }
-
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h2 {
-                font-size: 36px;
-            }
-
-            .location-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Kolkata Tourist Guide</title>
+
+  <style>
+    /* ================================
+       KOLKATA TOURIST GUIDE
+       INTERNAL CSS - NO CSS FILE NEEDED
+       ================================ */
+
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #171827;
+      --muted: #697080;
+      --primary: #635bff;
+      --primary-dark: #5148e8;
+      --border: #e5e7ef;
+      --shadow: 0 12px 35px rgba(25, 30, 60, 0.10);
+    }
+
+    body.dark {
+      --bg: #0c0f18;
+      --card: #151a27;
+      --text: #f7f8ff;
+      --muted: #a8afc0;
+      --primary: #766dff;
+      --primary-dark: #655cf0;
+      --border: #293044;
+      --shadow: 0 15px 40px rgba(0,0,0,0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* TOP BAR */
+
+    .topbar {
+      width: 100%;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.3px;
+    }
+
+    .brand span {
+      color: var(--primary);
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .icon-btn {
+      width: 45px;
+      height: 45px;
+      border-radius: 13px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    /* MAIN */
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 60px;
+    }
+
+    /* HERO */
+
+    .hero {
+      min-height: 480px;
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+
+      background:
+        linear-gradient(
+          120deg,
+          rgba(18, 20, 45, 0.96),
+          rgba(51, 47, 105, 0.86)
+        );
+
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 430px;
+      height: 430px;
+      right: -120px;
+      bottom: -180px;
+      border-radius: 50%;
+      background: rgba(125, 115, 255, 0.20);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: 80px;
+      top: -130px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .hero-overlay {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      padding: 70px 58px;
+      color: white;
+    }
+
+    .eyebrow {
+      color: #8f8aff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 6vw, 72px);
+      line-height: 0.98;
+      letter-spacing: -2.5px;
+      margin-bottom: 24px;
+    }
+
+    .hero p:not(.eyebrow) {
+      color: #d8daeb;
+      font-size: 16px;
+      line-height: 1.7;
+      max-width: 700px;
+      margin-bottom: 28px;
+    }
+
+    /* SEARCH */
+
+    .search {
+      display: flex;
+      gap: 10px;
+      max-width: 680px;
+    }
+
+    .search input {
+      flex: 1;
+      height: 54px;
+      padding: 0 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.16);
+      outline: none;
+      background: rgba(255,255,255,0.10);
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .search input::placeholder {
+      color: #c8cada;
+    }
+
+    .search input:focus {
+      border-color: #8f8aff;
+      box-shadow: 0 0 0 3px rgba(143,138,255,0.16);
+    }
+
+    .search button {
+      height: 54px;
+      padding: 0 25px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    .search button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    /* PLACES */
+
+    .places-section {
+      margin-top: 45px;
+    }
+
+    .places-section h2 {
+      font-size: 34px;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+
+    .place-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .place-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .place-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 42px rgba(25,30,60,0.15);
+    }
+
+    .place-image {
+      height: 210px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #6b63ff, #26264f);
+    }
+
+    .place-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 45px;
+    }
+
+    .place-content {
+      padding: 20px;
+    }
+
+    .place-type {
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .place-content h3 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .place-content p {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .view-btn {
+      width: 100%;
+      height: 45px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+    }
+
+    .view-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* LOCATION MODAL */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-card {
+      width: min(480px, 100%);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.30);
+    }
+
+    .modal-card h2 {
+      margin-bottom: 12px;
+      font-size: 28px;
+    }
+
+    .modal-card p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+
+    .modal-card button {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 12px;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    .primary {
+      border: 0;
+      background: var(--primary);
+      color: white;
+    }
+
+    .primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .secondary {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .secondary:hover {
+      background: var(--bg);
+    }
+
+    /* SEARCH RESULT */
+
+    .search-message {
+      display: none;
+      margin-top: 20px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .search-message.show {
+      display: block;
+    }
+
+    /* FOOTER */
+
+    footer {
+      text-align: center;
+      padding: 25px 15px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 850px) {
+      .place-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-overlay {
+        padding: 55px 35px;
+      }
+
+      .hero {
+        min-height: 440px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        padding: 13px 16px;
+      }
+
+      .brand {
+        font-size: 18px;
+      }
+
+      main {
+        width: min(100% - 20px, 1180px);
+        margin-top: 15px;
+      }
+
+      .hero {
+        border-radius: 20px;
+        min-height: 500px;
+      }
+
+      .hero-overlay {
+        padding: 45px 24px;
+      }
+
+      .hero h1 {
+        font-size: 45px;
+        letter-spacing: -1.5px;
+      }
+
+      .search {
+        flex-direction: column;
+      }
+
+      .search input,
+      .search button {
+        width: 100%;
+      }
+
+      .place-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .places-section h2 {
+        font-size: 29px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="navbar">
+  <!-- =========================
+       TOP BAR
+       ========================= -->
 
-            <div class="brand">
-                <div class="brand-logo">KT</div>
+  <header class="topbar">
 
-                <div class="brand-text">
-                    <h1>Kolkata Tourist Guide</h1>
-                    <p>Explore Kolkata</p>
-                </div>
-            </div>
+    <div class="brand">
+      Kolkata <span>Tourist</span> Guide
+      <small>with Akash Karmakar</small>
+    </div>
 
-            <div class="header-buttons">
-                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()">
-                    ☀️
-                </button>
-            </div>
+    <button
+      id="themeBtn"
+      class="icon-btn"
+      title="Dark / Light Mode"
+      aria-label="Change theme">
+      ☼
+    </button>
 
-        </div>
-    </header>
+  </header>
 
 
-    <!-- HERO -->
+  <!-- =========================
+       MAIN CONTENT
+       ========================= -->
+
+  <main>
+
     <section class="hero">
 
-        <div class="hero-content">
+      <div class="hero-overlay">
 
-            <div class="eyebrow">
-                EXPLORE KOLKATA
-            </div>
+        <p class="eyebrow">EXPLORE KOLKATA</p>
 
-            <h2>
-                Find your next
-                place to visit
-            </h2>
+        <h1>
+          Find your next<br>
+          place to visit
+        </h1>
 
-            <p>
-                Search a Kolkata attraction and get its key
-                information, map, distance and a place-based
-                group chat.
-            </p>
+        <p>
+          Search a Kolkata attraction and get its key information,
+          map, distance and a place-based group chat.
+        </p>
+
+        <div class="search">
+
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search Victoria Memorial..."
+            autocomplete="off">
+
+          <button id="searchBtn">
+            Search
+          </button>
 
         </div>
+
+      </div>
 
     </section>
 
 
-    <!-- SEARCH -->
-    <div class="search-box">
+    <!-- SEARCH MESSAGE -->
 
-        <input
-            id="searchInput"
-            type="text"
-            placeholder="Search Victoria Memorial..."
-        >
+    <div id="searchMessage" class="search-message"></div>
 
-        <button class="search-btn" onclick="searchPlace()">
-            Search
-        </button>
+
+    <!-- =========================
+         POPULAR PLACES
+         ========================= -->
+
+    <section class="places-section">
+
+      <p class="eyebrow">
+        POPULAR
+      </p>
+
+      <h2>
+        Popular places
+      </h2>
+
+      <div id="placeGrid" class="place-grid"></div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+       ========================= -->
+
+  <footer>
+    © 2026 Kolkata Tourist Guide
+  </footer>
+
+
+  <!-- =========================
+       LOCATION MODAL
+       ========================= -->
+
+  <div id="locationModal" class="modal hidden">
+
+    <div class="modal-card">
+
+      <h2>
+        Location required
+      </h2>
+
+      <p>
+        After searching a place, location permission is requested
+        so the site can calculate your distance from that place.
+      </p>
+
+      <button
+        id="allowLocationBtn"
+        class="primary">
+        Allow Location
+      </button>
+
+      <button
+        id="continueWithoutLocation"
+        class="secondary">
+        Continue without location
+      </button>
 
     </div>
 
+  </div>
 
-    <!-- POPULAR -->
-    <section class="section">
 
-        <div class="section-label">
-            POPULAR
-        </div>
+  <!-- =========================
+       INTERNAL JAVASCRIPT
+       NO app.js NEEDED
+       ========================= -->
 
-        <h3>
-            Popular places
-        </h3>
+  <script>
 
-        <div class="cards" id="placeCards">
+    /* ==========================================
+       KOLKATA TOURIST GUIDE
+       INTERNAL JAVASCRIPT
+       ========================================== */
 
-            <div class="card">
+    const places = [
 
-                <div class="card-image">
-                    No image supplied
-                </div>
+      {
+        id: "PLACE-VICTORIA-001",
+        name: "Victoria Memorial",
+        type: "Historical Place",
+        description:
+          "One of Kolkata's most famous landmarks and a beautiful historical monument.",
+        image: "",
+        emoji: "🏛️"
+      },
 
-                <div class="card-body">
+      {
+        id: "PLACE-INDIAN-MUSEUM-001",
+        name: "Indian Museum",
+        type: "Museum",
+        description:
+          "One of India's oldest and largest museums with archaeological and cultural collections.",
+        image: "",
+        emoji: "🏛️"
+      },
 
-                    <h4>Victoria Memorial</h4>
+      {
+        id: "PLACE-HOWRAH-BRIDGE-001",
+        name: "Howrah Bridge",
+        type: "Landmark",
+        description:
+          "The iconic cantilever bridge connecting Kolkata and Howrah across the Hooghly River.",
+        image: "",
+        emoji: "🌉"
+      },
 
-                    <p>
-                        One of Kolkata's most famous
-                        historical and tourist attractions.
-                    </p>
+      {
+        id: "PLACE-PRINCEP-001",
+        name: "Prinsep Ghat",
+        type: "Tourist Attraction",
+        description:
+          "A beautiful riverside destination famous for its architecture and Hooghly River views.",
+        image: "",
+        emoji: "🌊"
+      },
 
-                    <button
-                        class="view-btn"
-                        onclick="viewPlace('Victoria Memorial')"
-                    >
-                        View Place
-                    </button>
+      {
+        id: "PLACE-SCIENCE-CITY-001",
+        name: "Science City",
+        type: "Science Centre",
+        description:
+          "A popular educational and entertainment destination for students and families.",
+        image: "",
+        emoji: "🔬"
+      },
 
-                </div>
+      {
+        id: "PLACE-ST-PAUL-001",
+        name: "St. Paul's Cathedral",
+        type: "Historical Place",
+        description:
+          "A historic Anglican cathedral known for its beautiful Gothic architecture.",
+        image: "",
+        emoji: "⛪"
+      }
 
+    ];
+
+
+    /* ==========================================
+       ELEMENTS
+       ========================================== */
+
+    const placeGrid =
+      document.getElementById("placeGrid");
+
+    const searchInput =
+      document.getElementById("searchInput");
+
+    const searchBtn =
+      document.getElementById("searchBtn");
+
+    const searchMessage =
+      document.getElementById("searchMessage");
+
+    const themeBtn =
+      document.getElementById("themeBtn");
+
+    const locationModal =
+      document.getElementById("locationModal");
+
+    const allowLocationBtn =
+      document.getElementById("allowLocationBtn");
+
+    const continueWithoutLocation =
+      document.getElementById("continueWithoutLocation");
+
+
+    /* ==========================================
+       RENDER PLACES
+       ========================================== */
+
+    function renderPlaces(list) {
+
+      placeGrid.innerHTML = "";
+
+      if (!list.length) {
+
+        placeGrid.innerHTML = `
+          <div style="
+            grid-column: 1 / -1;
+            padding: 35px;
+            text-align: center;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--muted);
+          ">
+            No places found.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      list.forEach(place => {
+
+        const card =
+          document.createElement("article");
+
+        card.className = "place-card";
+
+        const imageHTML = place.image
+          ? `
+            <img
+              src="${escapeHTML(place.image)}"
+              alt="${escapeHTML(place.name)}"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+            <div
+              class="image-placeholder"
+              style="display:none;">
+              ${place.emoji}
+            </div>
+          `
+          : `
+            <div class="image-placeholder">
+              ${place.emoji}
+            </div>
+          `;
+
+
+        card.innerHTML = `
+
+          <div class="place-image">
+            ${imageHTML}
+          </div>
+
+          <div class="place-content">
+
+            <div class="place-type">
+              ${escapeHTML(place.type)}
             </div>
 
+            <h3>
+              ${escapeHTML(place.name)}
+            </h3>
 
-            <div class="card">
+            <p>
+              ${escapeHTML(place.description)}
+            </p>
 
-                <div class="card-image">
-                    No image supplied
-                </div>
-
-                <div class="card-body">
-
-                    <h4>Indian Museum</h4>
-
-                    <p>
-                        Explore India's rich history,
-                        culture and archaeological collections.
-                    </p>
-
-                    <button
-                        class="view-btn"
-                        onclick="viewPlace('Indian Museum')"
-                    >
-                        View Place
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div class="card-image">
-                    No image supplied
-                </div>
-
-                <div class="card-body">
-
-                    <h4>Howrah Bridge</h4>
-
-                    <p>
-                        A famous landmark and one of
-                        Kolkata's iconic attractions.
-                    </p>
-
-                    <button
-                        class="view-btn"
-                        onclick="viewPlace('Howrah Bridge')"
-                    >
-                        View Place
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- LOCATION -->
-    <section class="location-box">
-
-        <h3>Location required</h3>
-
-        <p>
-            Allow location access to calculate your
-            distance from the selected place.
-        </p>
-
-        <div class="location-buttons">
-
-            <button onclick="allowLocation()">
-                Allow Location
+            <button
+              class="view-btn"
+              data-id="${escapeHTML(place.id)}">
+              View Place
             </button>
 
-            <button onclick="continueWithoutLocation()">
-                Continue without location
-            </button>
-
-        </div>
-
-    </section>
+          </div>
+        `;
 
 
-    <!-- FOOTER -->
-    <footer>
-        © 2026 Kolkata Tourist Guide
-    </footer>
+        card
+          .querySelector(".view-btn")
+          .addEventListener("click", () => {
+
+            openPlace(place);
+
+          });
 
 
-    <script>
-        /* ==============================
-           DARK MODE
-        ============================== */
+        placeGrid.appendChild(card);
 
-        function toggleTheme() {
+      });
 
-            document.body.classList.toggle("dark");
+    }
 
-            const button = document.getElementById("themeBtn");
 
-            if (document.body.classList.contains("dark")) {
-                button.textContent = "🌙";
-                localStorage.setItem("theme", "dark");
-            } else {
-                button.textContent = "☀️";
-                localStorage.setItem("theme", "light");
-            }
+    /* ==========================================
+       OPEN PLACE
+       ========================================== */
+
+    function openPlace(place) {
+
+      /*
+       * এখানে পরে তোমার existing place.html
+       * / hotel.html / restaurant.html flow
+       * ব্যবহার করতে পারবে।
+       */
+
+      const url =
+        "place.html?id=" +
+        encodeURIComponent(place.id);
+
+      window.location.href = url;
+
+    }
+
+
+    /* ==========================================
+       SEARCH
+       ========================================== */
+
+    function performSearch() {
+
+      const query =
+        searchInput.value.trim().toLowerCase();
+
+
+      if (!query) {
+
+        renderPlaces(places);
+
+        searchMessage.classList.remove("show");
+
+        return;
+
+      }
+
+
+      const results =
+        places.filter(place => {
+
+          return (
+            place.name.toLowerCase().includes(query) ||
+            place.type.toLowerCase().includes(query) ||
+            place.description.toLowerCase().includes(query)
+          );
+
+        });
+
+
+      renderPlaces(results);
+
+
+      if (results.length) {
+
+        searchMessage.textContent =
+          `${results.length} place found for "${searchInput.value}"`;
+
+        searchMessage.classList.add("show");
+
+        requestLocation();
+
+      } else {
+
+        searchMessage.textContent =
+          `No place found for "${searchInput.value}"`;
+
+        searchMessage.classList.add("show");
+
+      }
+
+    }
+
+
+    searchBtn.addEventListener(
+      "click",
+      performSearch
+    );
+
+
+    searchInput.addEventListener(
+      "keydown",
+      event => {
+
+        if (event.key === "Enter") {
+
+          performSearch();
+
+        }
+
+      }
+    );
+
+
+    /* ==========================================
+       LOCATION
+       ========================================== */
+
+    function requestLocation() {
+
+      if (
+        !navigator.geolocation
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        localStorage.getItem("locationAllowed") === "yes"
+      ) {
+
+        return;
+
+      }
+
+
+      locationModal.classList.remove("hidden");
+
+    }
+
+
+    allowLocationBtn.addEventListener(
+      "click",
+      () => {
+
+        if (!navigator.geolocation) {
+
+          alert(
+            "Your browser does not support location."
+          );
+
+          locationModal.classList.add("hidden");
+
+          return;
+
         }
 
 
-        /* Restore theme */
+        navigator.geolocation.getCurrentPosition(
 
-        if (localStorage.getItem("theme") === "dark") {
-            document.body.classList.add("dark");
-            document.getElementById("themeBtn").textContent = "🌙";
-        }
+          position => {
 
+            localStorage.setItem(
+              "locationAllowed",
+              "yes"
+            );
 
-        /* ==============================
-           SEARCH
-        ============================== */
+            localStorage.setItem(
+              "userLatitude",
+              position.coords.latitude
+            );
 
-        function searchPlace() {
+            localStorage.setItem(
+              "userLongitude",
+              position.coords.longitude
+            );
 
-            const input =
-                document.getElementById("searchInput");
-
-            const value =
-                input.value.trim();
-
-            if (!value) {
-                alert("Please enter a place name.");
-                return;
-            }
-
-            alert("Searching for: " + value);
-        }
-
-
-        /* ==============================
-           VIEW PLACE
-        ============================== */
-
-        function viewPlace(placeName) {
+            locationModal.classList.add("hidden");
 
             alert(
-                "Opening information for " +
-                placeName
+              "Location allowed successfully."
             );
 
-            /*
-              এখানে তোমার আগের place.html-এর
-              navigation code বসাতে পারো।
+          },
 
-              Example:
+          error => {
 
-              window.location.href =
-                  "place.html?name=" +
-                  encodeURIComponent(placeName);
-            */
-        }
-
-
-        /* ==============================
-           LOCATION
-        ============================== */
-
-        function allowLocation() {
-
-            if (!navigator.geolocation) {
-
-                alert(
-                    "Geolocation is not supported by this browser."
-                );
-
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-
-                function(position) {
-
-                    const latitude =
-                        position.coords.latitude;
-
-                    const longitude =
-                        position.coords.longitude;
-
-                    alert(
-                        "Location allowed!\\n\\n" +
-                        "Latitude: " + latitude +
-                        "\\nLongitude: " + longitude
-                    );
-
-                },
-
-                function() {
-
-                    alert(
-                        "Location permission was not allowed."
-                    );
-
-                }
+            console.log(
+              "Location error:",
+              error
             );
-        }
+
+            locationModal.classList.add("hidden");
+
+          },
+
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+
+        );
+
+      }
+    );
 
 
-        function continueWithoutLocation() {
+    continueWithoutLocation.addEventListener(
+      "click",
+      () => {
 
-            alert(
-                "You can continue without location."
-            );
-        }
-    </script>
+        locationModal.classList.add("hidden");
+
+      }
+    );
+
+
+    /* ==========================================
+       DARK / LIGHT MODE
+       ========================================== */
+
+    function updateThemeIcon() {
+
+      if (
+        document.body.classList.contains("dark")
+      ) {
+
+        themeBtn.textContent = "☀";
+
+      } else {
+
+        themeBtn.textContent = "☾";
+
+      }
+
+    }
+
+
+    themeBtn.addEventListener(
+      "click",
+      () => {
+
+        document.body.classList.toggle("dark");
+
+
+        const mode =
+          document.body.classList.contains("dark")
+            ? "dark"
+            : "light";
+
+
+        localStorage.setItem(
+          "ktgTheme",
+          mode
+        );
+
+
+        updateThemeIcon();
+
+      }
+    );
+
+
+    /* LOAD SAVED THEME */
+
+    const savedTheme =
+      localStorage.getItem("ktgTheme");
+
+
+    if (savedTheme === "dark") {
+
+      document.body.classList.add("dark");
+
+    }
+
+
+    updateThemeIcon();
+
+
+    /* ==========================================
+       SECURITY / TEXT ESCAPING
+       ========================================== */
+
+    function escapeHTML(value) {
+
+      return String(value)
+
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    }
+
+
+    /* ==========================================
+       INITIAL LOAD
+       ========================================== */
+
+    renderPlaces(places);
+
+  </script>
 
 </body>
 </html>
