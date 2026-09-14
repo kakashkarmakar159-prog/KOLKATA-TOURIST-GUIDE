@@ -1362,7 +1362,7 @@ async function loadRestaurantPage() {
         // Load places.json
         // -------------------------------------------------
 
-        const response = await fetch("/data/places.json", {
+        const response = await fetch("data/places.json", {
             cache: "no-store"
         });
 
@@ -1548,7 +1548,7 @@ function renderRestaurantList(place, restaurants) {
 
                 <a
                     class="restaurant-home-btn"
-                    href="/index.html"
+                    href="index.html"
                 >
                     🏠 Home
                 </a>
@@ -1696,7 +1696,7 @@ function renderSingleRestaurant(place, restaurant) {
 
                 <a
                     class="restaurant-home-btn"
-                    href="/index.html"
+                    href="index.html"
                 >
                     🏠 Home
                 </a>
@@ -2121,7 +2121,7 @@ function createRestaurantCard(
                 <div class="restaurant-card-actions">
 
                     <a
-                        href="/restaurant.html?id=${encodeURIComponent(
+                        href="restaurant.html?id=${encodeURIComponent(
                             place.id
                         )}&restaurantId=${encodeURIComponent(
                             id
@@ -2278,7 +2278,7 @@ function showNoRestaurants(place) {
                 এর জন্য কোনো restaurant যোগ করা হয়নি।
             </p>
 
-            <a href="/index.html">
+            <a href="index.html">
                 ← Back to Home
             </a>
 
@@ -2326,7 +2326,7 @@ function showError(message) {
                     🔄 Refresh
                 </button>
 
-                <a href="/index.html">
+                <a href="index.html">
                     🏠 Home
                 </a>
 

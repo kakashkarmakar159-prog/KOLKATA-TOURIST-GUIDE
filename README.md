@@ -1,75 +1,32 @@
-# Installation
-> `npm install --save @types/cors`
+# Kolkata Tourist Guide
 
-# Summary
-This package contains type definitions for cors (https://github.com/expressjs/cors/).
+Starter website based on the requested design and feature flow.
 
-# Details
-Files were exported from https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/cors.
-## [index.d.ts](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/cors/index.d.ts)
-````ts
-/// <reference types="node" />
+## Current structure
+- Home/search page
+- Six starter places in `public/data/places.json`
+- Location permission after search
+- Place details interface
+- Name prompt before group chat
+- Real-time group chat using Socket.IO
+- Live location sharing foundation using Socket.IO
+- Dark/light mode
+- Share button
+- Google Maps button
+- Hotel/restaurant image hooks
+- Metro booking URL hook
 
-import { IncomingHttpHeaders } from "http";
+## Run
+1. Install Node.js.
+2. Open this folder in VS Code.
+3. Run:
+   `npm install`
+4. Run:
+   `npm start`
+5. Open:
+   `http://localhost:3000`
 
-type StaticOrigin = boolean | string | RegExp | Array<boolean | string | RegExp>;
+## Important
+The six places currently have placeholder detail fields so you can fill in your own data later.
 
-type CustomOrigin = (
-    requestOrigin: string | undefined,
-    callback: (err: Error | null, origin?: StaticOrigin) => void,
-) => void;
-
-declare namespace e {
-    interface CorsRequest {
-        method?: string | undefined;
-        headers: IncomingHttpHeaders;
-    }
-    interface CorsOptions {
-        /**
-         * @default '*'
-         */
-        origin?: StaticOrigin | CustomOrigin | undefined;
-        /**
-         * @default 'GET,HEAD,PUT,PATCH,POST,DELETE'
-         */
-        methods?: string | string[] | undefined;
-        allowedHeaders?: string | string[] | undefined;
-        exposedHeaders?: string | string[] | undefined;
-        credentials?: boolean | undefined;
-        maxAge?: number | undefined;
-        /**
-         * @default false
-         */
-        preflightContinue?: boolean | undefined;
-        /**
-         * @default 204
-         */
-        optionsSuccessStatus?: number | undefined;
-    }
-    type CorsOptionsDelegate<T extends CorsRequest = CorsRequest> = (
-        req: T,
-        callback: (err: Error | null, options?: CorsOptions) => void,
-    ) => void;
-}
-
-declare function e<T extends e.CorsRequest = e.CorsRequest>(
-    options?: e.CorsOptions | e.CorsOptionsDelegate<T>,
-): (
-    req: T,
-    res: {
-        statusCode?: number | undefined;
-        setHeader(key: string, value: string): any;
-        end(): any;
-    },
-    next: (err?: any) => any,
-) => void;
-export = e;
-
-````
-
-### Additional Details
- * Last updated: Sat, 07 Jun 2025 02:15:25 GMT
- * Dependencies: [@types/node](https://npmjs.com/package/@types/node)
-
-# Credits
-These definitions were written by [Alan Plum](https://github.com/pluma), [Gaurav Sharma](https://github.com/gtpan77), and [Sebastian Beltran](https://github.com/bjohansebas).
+For production live maps, connect `map.html` to a map provider and add latitude/longitude to each place. The current Socket.IO layer is already prepared for group location events.

@@ -55,7 +55,7 @@ async function loadBusiness(){
     throw new Error("Booking ID is missing. Please open Booking from the selected business.");
   }
 
-  const response = await fetch("/data/places.json", {cache:"no-store"});
+  const response = await fetch("data/places.json", {cache:"no-store"});
   if(!response.ok) throw new Error(`Could not load places.json (${response.status}).`);
   const raw = await response.json();
   const places = Array.isArray(raw) ? raw : (Array.isArray(raw.places) ? raw.places : []);
