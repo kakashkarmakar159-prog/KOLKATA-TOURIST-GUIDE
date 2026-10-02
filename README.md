@@ -30,3 +30,6 @@ Starter website based on the requested design and feature flow.
 The six places currently have placeholder detail fields so you can fill in your own data later.
 
 For production live maps, connect `map.html` to a map provider and add latitude/longitude to each place. The current Socket.IO layer is already prepared for group location events.
+
+## GitHub Pages
+This package is prepared for a repository project site such as `/KTG/`. The contents of `public/` are moved to the repository root, `.nojekyll` is included, and `/data/places.json` is loaded using project-relative URLs. Admin hotel/restaurant edits are stored in browser localStorage in static mode because GitHub Pages cannot run the Express server or write back to JSON files. For shared server-side persistence, run the existing Node/Express server on a server host.

@@ -49,7 +49,7 @@ async function load(){
   try{
     // Prefer the page-linked JSON if it exists; otherwise use the bundled hotel data.
     let json = null;
-    const candidates = ["data/places.json", "data/hotels.json"];
+    const candidates = ["places.json", "data/places.json", "data/hotels.json"];
     for(const src of candidates){
       try{
         const res = await fetch(src,{cache:"no-store"});

@@ -5,7 +5,11 @@ const modal = document.getElementById("locationModal");
 let pendingPlace = null;
 
 async function loadPlaces(){
-  places = await fetch("data/places.json").then(r=>r.json());
+  places = window.KTGStatic?.getPlaces
+    ? await window.KTGStatic.getPlaces()
+    : (await Promise.all(Array.from({length:10}, (_,i) =>
+        fetch(`data/places-${i+1}.json`).then(r => r.json())
+      ))).flat();
   renderPlaces(places);
 }
 function renderPlaces(list){

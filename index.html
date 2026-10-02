@@ -3,1126 +3,754 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Kolkata Tourist Guide</title>
-
   <style>
-    /* ================================
-       KOLKATA TOURIST GUIDE
-       INTERNAL CSS - NO CSS FILE NEEDED
-       ================================ */
-
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #171827;
-      --muted: #697080;
-      --primary: #635bff;
-      --primary-dark: #5148e8;
-      --border: #e5e7ef;
-      --shadow: 0 12px 35px rgba(25, 30, 60, 0.10);
-    }
-
-    body.dark {
-      --bg: #0c0f18;
-      --card: #151a27;
-      --text: #f7f8ff;
-      --muted: #a8afc0;
-      --primary: #766dff;
-      --primary-dark: #655cf0;
-      --border: #293044;
-      --shadow: 0 15px 40px rgba(0,0,0,0.35);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      transition: background 0.25s, color 0.25s;
-    }
-
-    button,
-    input {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    /* TOP BAR */
-
-    .topbar {
-      width: 100%;
-      min-height: 76px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 28px;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .brand {
-      font-size: 21px;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.3px;
-    }
-
-    .brand span {
-      color: var(--primary);
-    }
-
-    .brand small {
-      display: block;
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0;
-    }
-
-    .icon-btn {
-      width: 45px;
-      height: 45px;
-      border-radius: 13px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-size: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: var(--primary);
-      color: white;
-      transform: translateY(-1px);
-    }
-
-    /* MAIN */
-
-    main {
-      width: min(1180px, calc(100% - 32px));
-      margin: 28px auto 60px;
-    }
-
-    /* HERO */
-
-    .hero {
-      min-height: 480px;
-      border-radius: 28px;
-      overflow: hidden;
-      position: relative;
-
-      background:
-        linear-gradient(
-          120deg,
-          rgba(18, 20, 45, 0.96),
-          rgba(51, 47, 105, 0.86)
-        );
-
-      box-shadow: var(--shadow);
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      width: 430px;
-      height: 430px;
-      right: -120px;
-      bottom: -180px;
-      border-radius: 50%;
-      background: rgba(125, 115, 255, 0.20);
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 260px;
-      height: 260px;
-      right: 80px;
-      top: -130px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-    }
-
-    .hero-overlay {
-      position: relative;
-      z-index: 2;
-      max-width: 760px;
-      padding: 70px 58px;
-      color: white;
-    }
-
-    .eyebrow {
-      color: #8f8aff;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-    }
-
-    .hero h1 {
-      font-size: clamp(42px, 6vw, 72px);
-      line-height: 0.98;
-      letter-spacing: -2.5px;
-      margin-bottom: 24px;
-    }
-
-    .hero p:not(.eyebrow) {
-      color: #d8daeb;
-      font-size: 16px;
-      line-height: 1.7;
-      max-width: 700px;
-      margin-bottom: 28px;
-    }
-
-    /* SEARCH */
-
-    .search {
-      display: flex;
-      gap: 10px;
-      max-width: 680px;
-    }
-
-    .search input {
-      flex: 1;
-      height: 54px;
-      padding: 0 18px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.16);
-      outline: none;
-      background: rgba(255,255,255,0.10);
-      color: white;
-      backdrop-filter: blur(10px);
-    }
-
-    .search input::placeholder {
-      color: #c8cada;
-    }
-
-    .search input:focus {
-      border-color: #8f8aff;
-      box-shadow: 0 0 0 3px rgba(143,138,255,0.16);
-    }
-
-    .search button {
-      height: 54px;
-      padding: 0 25px;
-      border: 0;
-      border-radius: 14px;
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-      transition: 0.2s;
-    }
-
-    .search button:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
-
-    /* PLACES */
-
-    .places-section {
-      margin-top: 45px;
-    }
-
-    .places-section h2 {
-      font-size: 34px;
-      margin-bottom: 24px;
-      letter-spacing: -1px;
-    }
-
-    .place-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .place-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .place-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 18px 42px rgba(25,30,60,0.15);
-    }
-
-    .place-image {
-      height: 210px;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, #6b63ff, #26264f);
-    }
-
-    .place-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .image-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 45px;
-    }
-
-    .place-content {
-      padding: 20px;
-    }
-
-    .place-type {
-      color: var(--primary);
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      margin-bottom: 8px;
-    }
-
-    .place-content h3 {
-      font-size: 22px;
-      margin-bottom: 8px;
-    }
-
-    .place-content p {
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
-
-    .view-btn {
-      width: 100%;
-      height: 45px;
-      border: 0;
-      border-radius: 12px;
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-    }
-
-    .view-btn:hover {
-      background: var(--primary-dark);
-    }
-
-    /* LOCATION MODAL */
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(5px);
-    }
-
-    .modal.hidden {
-      display: none;
-    }
-
-    .modal-card {
-      width: min(480px, 100%);
-      background: var(--card);
-      color: var(--text);
-      border-radius: 24px;
-      padding: 30px;
-      box-shadow: 0 25px 70px rgba(0,0,0,0.30);
-    }
-
-    .modal-card h2 {
-      margin-bottom: 12px;
-      font-size: 28px;
-    }
-
-    .modal-card p {
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 22px;
-    }
-
-    .modal-card button {
-      width: 100%;
-      min-height: 48px;
-      border-radius: 12px;
-      margin-top: 10px;
-      font-weight: 700;
-    }
-
-    .primary {
-      border: 0;
-      background: var(--primary);
-      color: white;
-    }
-
-    .primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .secondary {
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-    }
-
-    .secondary:hover {
-      background: var(--bg);
-    }
-
-    /* SEARCH RESULT */
-
-    .search-message {
-      display: none;
-      margin-top: 20px;
-      padding: 16px 18px;
-      border-radius: 14px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-
-    .search-message.show {
-      display: block;
-    }
-
-    /* FOOTER */
-
-    footer {
-      text-align: center;
-      padding: 25px 15px;
-      color: var(--muted);
-      font-size: 13px;
-      border-top: 1px solid var(--border);
-    }
-
-    /* MOBILE */
-
-    @media (max-width: 850px) {
-      .place-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .hero-overlay {
-        padding: 55px 35px;
-      }
-
-      .hero {
-        min-height: 440px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .topbar {
-        padding: 13px 16px;
-      }
-
-      .brand {
-        font-size: 18px;
-      }
-
-      main {
-        width: min(100% - 20px, 1180px);
-        margin-top: 15px;
-      }
-
-      .hero {
-        border-radius: 20px;
-        min-height: 500px;
-      }
-
-      .hero-overlay {
-        padding: 45px 24px;
-      }
-
-      .hero h1 {
-        font-size: 45px;
-        letter-spacing: -1.5px;
-      }
-
-      .search {
-        flex-direction: column;
-      }
-
-      .search input,
-      .search button {
-        width: 100%;
-      }
-
-      .place-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .places-section h2 {
-        font-size: 29px;
-      }
-    }
-  </style>
+/* INTERNAL CSS: css/style.css */
+css
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  background: #090d14;
+
+  color: #f5f7fb;
+
+  position: relative;
+
+  min-height: 100vh;
+}
+
+
+/* ================================
+   GLOBAL KOLKATA BACKGROUND
+   IMAGE LINK UNCHANGED
+================================ */
+
+body::before {
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: -2;
+
+  background:
+    linear-gradient(
+      rgba(4, 8, 15, 0.16),
+      rgba(4, 8, 15, 0.22)
+    ),
+    url("https://images.pexels.com/photos/16569842/pexels-photo-16569842.jpeg")
+    center center / cover no-repeat;
+
+  pointer-events: none;
+}
+
+
+/* ================================
+   TOP BAR
+================================ */
+
+.topbar {
+  height: 58px;
+
+  background: rgba(17, 26, 39, 0.30);
+
+  backdrop-filter: blur(14px) saturate(115%);
+  -webkit-backdrop-filter: blur(14px) saturate(115%);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 5%;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 20;
+}
+
+
+.brand {
+  font-weight: 800;
+
+  font-size: 18px;
+}
+
+
+.brand span {
+  color: #0b5bee;
+}
+
+
+.brand small {
+  display: block;
+
+  color: #e22a32;
+
+  font-size: 9px;
+
+  font-style: italic;
+
+  margin-left: 25px;
+}
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+.icon-btn,
+.secondary,
+.primary {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.07);
+
+  color: inherit;
+
+  padding: 11px 17px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+
+.icon-btn:hover,
+.secondary:hover {
+  border-color: #3478f6;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  transform: translateY(-1px);
+}
+
+
+.primary {
+  background: #2169ee;
+
+  border-color: #2169ee;
+
+  color: white;
+
+  font-weight: 700;
+}
+
+
+.primary:hover {
+  background: #3478f6;
+}
+
+
+/* ================================
+   HERO
+   IMAGE LINK UNCHANGED
+================================ */
+
+.hero {
+  min-height: 475px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 7, 12, 0.28),
+      rgba(3, 7, 12, 0.08)
+    ),
+    url("https://images.pexels.com/photos/16569842/pexels-photo-16569842.jpeg")
+    center / cover no-repeat;
+
+  display: flex;
+
+  align-items: center;
+
+  position: relative;
+}
+
+
+.hero-overlay {
+  max-width: 900px;
+
+  width: 90%;
+
+  margin: auto;
+}
+
+
+.eyebrow {
+  color: #2e73f2;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  font-size: 12px;
+}
+
+
+.hero h1 {
+  font-size: 64px;
+
+  line-height: 0.98;
+
+  margin: 10px 0 20px;
+}
+
+
+.hero p:not(.eyebrow) {
+  max-width: 610px;
+
+  color: #e0e5ec;
+
+  line-height: 1.5;
+}
+
+
+/* ================================
+   SEARCH
+================================ */
+
+.search {
+  background: rgba(255, 255, 255, 0.88);
+
+  border-radius: 16px;
+
+  padding: 5px;
+
+  display: flex;
+
+  max-width: 590px;
+
+  margin-top: 28px;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.16);
+}
+
+
+.search input {
+  flex: 1;
+
+  border: 0;
+
+  outline: 0;
+
+  padding: 16px;
+
+  background: transparent;
+
+  font-size: 15px;
+}
+
+
+.search button {
+  border: 0;
+
+  border-radius: 12px;
+
+  background: #2169ee;
+
+  color: white;
+
+  padding: 0 24px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+/* ================================
+   PLACES SECTION
+================================ */
+
+.places-section {
+  max-width: 1000px;
+
+  margin: 55px auto;
+
+  padding: 0 25px;
+}
+
+
+.places-section h2 {
+  font-size: 30px;
+}
+
+
+/* ================================
+   PLACE GRID
+================================ */
+
+.place-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 16px;
+}
+
+
+/* ================================
+   PLACE CARD
+   GLASSMORPHISM
+================================ */
+
+.place-tile {
+  background: rgba(255, 255, 255, 0.07);
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+
+.place-tile:hover {
+  transform: translateY(-3px);
+
+  border-color: #3478f6;
+
+  background: rgba(255, 255, 255, 0.10);
+}
+
+
+/* ================================
+   PLACE IMAGE
+================================ */
+
+.place-img {
+  width: 100%;
+
+  height: 180px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #21324b,
+      #0d1420
+    );
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #7d8da5;
+
+  text-align: center;
+
+  padding: 0;
+
+  overflow: hidden;
+}
+
+
+.place-img img {
+  width: 100%;
+
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+
+/* ================================
+   PLACE TEXT
+================================ */
+
+.place-tile h3 {
+  font-size: 16px;
+
+  margin: 15px 14px 6px;
+}
+
+
+.place-tile p {
+  font-size: 13px;
+
+  color: #d0d8e4;
+
+  margin: 0 14px 16px;
+
+  line-height: 1.5;
+}
+
+
+/* ================================
+   FOOTER
+================================ */
+
+footer {
+  text-align: center;
+
+  color: #b0bac8;
+
+  padding: 45px;
+}
+
+
+/* ================================
+   MODAL
+================================ */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.48);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 100;
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+
+.modal.hidden {
+  display: none;
+}
+
+
+.modal-card {
+  max-width: 430px;
+
+  width: 100%;
+
+  background: rgba(255, 255, 255, 0.10);
+
+  border: 1px solid rgba(255, 255, 255, 0.20);
+
+  border-radius: 22px;
+
+  padding: 28px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(18px) saturate(115%);
+  -webkit-backdrop-filter: blur(18px) saturate(115%);
+}
+
+
+.modal-card h2 {
+  margin-top: 0;
+}
+
+
+.modal-card p {
+  color: #d0d8e4;
+
+  line-height: 1.5;
+}
+
+
+.modal-card button {
+  width: 100%;
+
+  margin-top: 12px;
+}
+
+
+.full-input {
+  width: 100%;
+
+  padding: 15px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  background: rgba(255, 255, 255, 0.07);
+
+  color: white;
+
+  outline: none;
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* ================================
+   LIGHT MODE
+   IMAGE LINK UNCHANGED
+================================ */
+
+body.light {
+  background: #f5f7fb;
+
+  color: #111827;
+}
+
+
+body.light::before {
+  background:
+    linear-gradient(
+      rgba(245, 247, 251, 0.20),
+      rgba(245, 247, 251, 0.30)
+    ),
+    url("https://images.pexels.com/photos/16569842/pexels-photo-16569842.jpeg")
+    center / cover no-repeat;
+}
+
+
+body.light .topbar {
+  background: rgba(255, 255, 255, 0.28);
+
+  color: #111827;
+
+  border-bottom-color: rgba(255, 255, 255, 0.60);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+
+body.light .place-tile,
+body.light .modal-card {
+  background: rgba(255, 255, 255, 0.20);
+
+  border-color: rgba(255, 255, 255, 0.55);
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70);
+}
+
+
+body.light .secondary,
+body.light .icon-btn {
+  background: rgba(255, 255, 255, 0.25);
+
+  color: #111827;
+
+  border-color: rgba(255, 255, 255, 0.60);
+}
+
+
+body.light .place-tile p {
+  color: #4b5563;
+}
+
+
+body.light .modal-card p {
+  color: #4b5563;
+}
+
+
+body.light .full-input {
+  background: rgba(255, 255, 255, 0.28);
+
+  color: #111827;
+
+  border-color: rgba(255, 255, 255, 0.60);
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 800px) {
+
+  .place-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+
+  .hero h1 {
+    font-size: 45px;
+  }
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 520px) {
+
+  .place-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .topbar {
+    padding: 0 18px;
+  }
+
+
+  .brand {
+    font-size: 15px;
+  }
+
+
+  .hero {
+    min-height: 500px;
+  }
+
+
+  .hero-overlay {
+    width: 88%;
+  }
+
+
+  .hero h1 {
+    font-size: 42px;
+  }
+
+
+  .search {
+    width: 100%;
+  }
+
+
+  .place-img {
+    height: 210px;
+  }
+}
+
+
+</style>
 </head>
-
 <body>
+<header class="topbar">
+  <div class="brand">Kolkata <span>Tourist</span> Guide<small>with Akash Karmakar</small></div>
+  <button id="themeBtn" class="icon-btn" title="Dark / Light">☼</button>
+</header>
 
-  <!-- =========================
-       TOP BAR
-       ========================= -->
-
-  <header class="topbar">
-
-    <div class="brand">
-      Kolkata <span>Tourist</span> Guide
-      <small>with Akash Karmakar</small>
-    </div>
-
-    <button
-      id="themeBtn"
-      class="icon-btn"
-      title="Dark / Light Mode"
-      aria-label="Change theme">
-      ☼
-    </button>
-
-  </header>
-
-
-  <!-- =========================
-       MAIN CONTENT
-       ========================= -->
-
-  <main>
-
-    <section class="hero">
-
-      <div class="hero-overlay">
-
-        <p class="eyebrow">EXPLORE KOLKATA</p>
-
-        <h1>
-          Find your next<br>
-          place to visit
-        </h1>
-
-        <p>
-          Search a Kolkata attraction and get its key information,
-          map, distance and a place-based group chat.
-        </p>
-
-        <div class="search">
-
-          <input
-            id="searchInput"
-            type="search"
-            placeholder="Search Victoria Memorial..."
-            autocomplete="off">
-
-          <button id="searchBtn">
-            Search
-          </button>
-
-        </div>
-
+<main>
+  <section class="hero">
+    <div class="hero-overlay">
+      <p class="eyebrow">EXPLORE KOLKATA</p>
+      <h1>Find your next<br>place to visit</h1>
+      <p>Search a Kolkata attraction and get its key information, map, distance and a place-based group chat.</p>
+      <div class="search">
+        <input id="searchInput" placeholder="Search Victoria Memorial..." autocomplete="off">
+        <button id="searchBtn">Search</button>
       </div>
-
-    </section>
-
-
-    <!-- SEARCH MESSAGE -->
-
-    <div id="searchMessage" class="search-message"></div>
-
-
-    <!-- =========================
-         POPULAR PLACES
-         ========================= -->
-
-    <section class="places-section">
-
-      <p class="eyebrow">
-        POPULAR
-      </p>
-
-      <h2>
-        Popular places
-      </h2>
-
-      <div id="placeGrid" class="place-grid"></div>
-
-    </section>
-
-  </main>
-
-
-  <!-- =========================
-       FOOTER
-       ========================= -->
-
-  <footer>
-    © 2026 Kolkata Tourist Guide
-  </footer>
-
-
-  <!-- =========================
-       LOCATION MODAL
-       ========================= -->
-
-  <div id="locationModal" class="modal hidden">
-
-    <div class="modal-card">
-
-      <h2>
-        Location required
-      </h2>
-
-      <p>
-        After searching a place, location permission is requested
-        so the site can calculate your distance from that place.
-      </p>
-
-      <button
-        id="allowLocationBtn"
-        class="primary">
-        Allow Location
-      </button>
-
-      <button
-        id="continueWithoutLocation"
-        class="secondary">
-        Continue without location
-      </button>
-
     </div>
+  </section>
 
+  <section class="places-section">
+    <p class="eyebrow">POPULAR</p>
+    <h2>Popular places</h2>
+    <div id="placeGrid" class="place-grid"></div>
+  </section>
+</main>
+
+<footer>© 2026 Kolkata Tourist Guide</footer>
+
+<div id="locationModal" class="modal hidden">
+  <div class="modal-card">
+    <h2>Location required</h2>
+    <p>After searching a place, location permission is requested so the site can calculate your distance from that place.</p>
+    <button id="allowLocationBtn" class="primary">Allow Location</button>
+    <button id="continueWithoutLocation" class="secondary">Continue without location</button>
   </div>
-
-
-  <!-- =========================
-       INTERNAL JAVASCRIPT
-       NO app.js NEEDED
-       ========================= -->
-
-  <script>
-
-    /* ==========================================
-       KOLKATA TOURIST GUIDE
-       INTERNAL JAVASCRIPT
-       ========================================== */
-
-    const places = [
-
-      {
-        id: "PLACE-VICTORIA-001",
-        name: "Victoria Memorial",
-        type: "Historical Place",
-        description:
-          "One of Kolkata's most famous landmarks and a beautiful historical monument.",
-        image: "",
-        emoji: "🏛️"
-      },
-
-      {
-        id: "PLACE-INDIAN-MUSEUM-001",
-        name: "Indian Museum",
-        type: "Museum",
-        description:
-          "One of India's oldest and largest museums with archaeological and cultural collections.",
-        image: "",
-        emoji: "🏛️"
-      },
-
-      {
-        id: "PLACE-HOWRAH-BRIDGE-001",
-        name: "Howrah Bridge",
-        type: "Landmark",
-        description:
-          "The iconic cantilever bridge connecting Kolkata and Howrah across the Hooghly River.",
-        image: "",
-        emoji: "🌉"
-      },
-
-      {
-        id: "PLACE-PRINCEP-001",
-        name: "Prinsep Ghat",
-        type: "Tourist Attraction",
-        description:
-          "A beautiful riverside destination famous for its architecture and Hooghly River views.",
-        image: "",
-        emoji: "🌊"
-      },
-
-      {
-        id: "PLACE-SCIENCE-CITY-001",
-        name: "Science City",
-        type: "Science Centre",
-        description:
-          "A popular educational and entertainment destination for students and families.",
-        image: "",
-        emoji: "🔬"
-      },
-
-      {
-        id: "PLACE-ST-PAUL-001",
-        name: "St. Paul's Cathedral",
-        type: "Historical Place",
-        description:
-          "A historic Anglican cathedral known for its beautiful Gothic architecture.",
-        image: "",
-        emoji: "⛪"
-      }
-
-    ];
-
-
-    /* ==========================================
-       ELEMENTS
-       ========================================== */
-
-    const placeGrid =
-      document.getElementById("placeGrid");
-
-    const searchInput =
-      document.getElementById("searchInput");
-
-    const searchBtn =
-      document.getElementById("searchBtn");
-
-    const searchMessage =
-      document.getElementById("searchMessage");
-
-    const themeBtn =
-      document.getElementById("themeBtn");
-
-    const locationModal =
-      document.getElementById("locationModal");
-
-    const allowLocationBtn =
-      document.getElementById("allowLocationBtn");
-
-    const continueWithoutLocation =
-      document.getElementById("continueWithoutLocation");
-
-
-    /* ==========================================
-       RENDER PLACES
-       ========================================== */
-
-    function renderPlaces(list) {
-
-      placeGrid.innerHTML = "";
-
-      if (!list.length) {
-
-        placeGrid.innerHTML = `
-          <div style="
-            grid-column: 1 / -1;
-            padding: 35px;
-            text-align: center;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--muted);
-          ">
-            No places found.
-          </div>
-        `;
-
-        return;
-      }
-
-
-      list.forEach(place => {
-
-        const card =
-          document.createElement("article");
-
-        card.className = "place-card";
-
-        const imageHTML = place.image
-          ? `
-            <img
-              src="${escapeHTML(place.image)}"
-              alt="${escapeHTML(place.name)}"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-
-            <div
-              class="image-placeholder"
-              style="display:none;">
-              ${place.emoji}
-            </div>
-          `
-          : `
-            <div class="image-placeholder">
-              ${place.emoji}
-            </div>
-          `;
-
-
-        card.innerHTML = `
-
-          <div class="place-image">
-            ${imageHTML}
-          </div>
-
-          <div class="place-content">
-
-            <div class="place-type">
-              ${escapeHTML(place.type)}
-            </div>
-
-            <h3>
-              ${escapeHTML(place.name)}
-            </h3>
-
-            <p>
-              ${escapeHTML(place.description)}
-            </p>
-
-            <button
-              class="view-btn"
-              data-id="${escapeHTML(place.id)}">
-              View Place
-            </button>
-
-          </div>
-        `;
-
-
-        card
-          .querySelector(".view-btn")
-          .addEventListener("click", () => {
-
-            openPlace(place);
-
-          });
-
-
-        placeGrid.appendChild(card);
-
-      });
-
-    }
-
-
-    /* ==========================================
-       OPEN PLACE
-       ========================================== */
-
-    function openPlace(place) {
-
-      /*
-       * এখানে পরে তোমার existing place.html
-       * / hotel.html / restaurant.html flow
-       * ব্যবহার করতে পারবে।
-       */
-
-      const url =
-        "place.html?id=" +
-        encodeURIComponent(place.id);
-
-      window.location.href = url;
-
-    }
-
-
-    /* ==========================================
-       SEARCH
-       ========================================== */
-
-    function performSearch() {
-
-      const query =
-        searchInput.value.trim().toLowerCase();
-
-
-      if (!query) {
-
-        renderPlaces(places);
-
-        searchMessage.classList.remove("show");
-
-        return;
-
-      }
-
-
-      const results =
-        places.filter(place => {
-
-          return (
-            place.name.toLowerCase().includes(query) ||
-            place.type.toLowerCase().includes(query) ||
-            place.description.toLowerCase().includes(query)
-          );
-
-        });
-
-
-      renderPlaces(results);
-
-
-      if (results.length) {
-
-        searchMessage.textContent =
-          `${results.length} place found for "${searchInput.value}"`;
-
-        searchMessage.classList.add("show");
-
-        requestLocation();
-
-      } else {
-
-        searchMessage.textContent =
-          `No place found for "${searchInput.value}"`;
-
-        searchMessage.classList.add("show");
-
-      }
-
-    }
-
-
-    searchBtn.addEventListener(
-      "click",
-      performSearch
-    );
-
-
-    searchInput.addEventListener(
-      "keydown",
-      event => {
-
-        if (event.key === "Enter") {
-
-          performSearch();
-
-        }
-
-      }
-    );
-
-
-    /* ==========================================
-       LOCATION
-       ========================================== */
-
-    function requestLocation() {
-
-      if (
-        !navigator.geolocation
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        localStorage.getItem("locationAllowed") === "yes"
-      ) {
-
-        return;
-
-      }
-
-
-      locationModal.classList.remove("hidden");
-
-    }
-
-
-    allowLocationBtn.addEventListener(
-      "click",
-      () => {
-
-        if (!navigator.geolocation) {
-
-          alert(
-            "Your browser does not support location."
-          );
-
-          locationModal.classList.add("hidden");
-
-          return;
-
-        }
-
-
-        navigator.geolocation.getCurrentPosition(
-
-          position => {
-
-            localStorage.setItem(
-              "locationAllowed",
-              "yes"
-            );
-
-            localStorage.setItem(
-              "userLatitude",
-              position.coords.latitude
-            );
-
-            localStorage.setItem(
-              "userLongitude",
-              position.coords.longitude
-            );
-
-            locationModal.classList.add("hidden");
-
-            alert(
-              "Location allowed successfully."
-            );
-
-          },
-
-          error => {
-
-            console.log(
-              "Location error:",
-              error
-            );
-
-            locationModal.classList.add("hidden");
-
-          },
-
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-          }
-
-        );
-
-      }
-    );
-
-
-    continueWithoutLocation.addEventListener(
-      "click",
-      () => {
-
-        locationModal.classList.add("hidden");
-
-      }
-    );
-
-
-    /* ==========================================
-       DARK / LIGHT MODE
-       ========================================== */
-
-    function updateThemeIcon() {
-
-      if (
-        document.body.classList.contains("dark")
-      ) {
-
-        themeBtn.textContent = "☀";
-
-      } else {
-
-        themeBtn.textContent = "☾";
-
-      }
-
-    }
-
-
-    themeBtn.addEventListener(
-      "click",
-      () => {
-
-        document.body.classList.toggle("dark");
-
-
-        const mode =
-          document.body.classList.contains("dark")
-            ? "dark"
-            : "light";
-
-
-        localStorage.setItem(
-          "ktgTheme",
-          mode
-        );
-
-
-        updateThemeIcon();
-
-      }
-    );
-
-
-    /* LOAD SAVED THEME */
-
-    const savedTheme =
-      localStorage.getItem("ktgTheme");
-
-
-    if (savedTheme === "dark") {
-
-      document.body.classList.add("dark");
-
-    }
-
-
-    updateThemeIcon();
-
-
-    /* ==========================================
-       SECURITY / TEXT ESCAPING
-       ========================================== */
-
-    function escapeHTML(value) {
-
-      return String(value)
-
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-    }
-
-
-    /* ==========================================
-       INITIAL LOAD
-       ========================================== */
-
-    renderPlaces(places);
-
-  </script>
-
+</div>
+
+<script src="github-pages.js"></script>
+<script>
+/* INTERNAL JS: js/app.js */
+let places = [];
+const input = document.getElementById("searchInput");
+const grid = document.getElementById("placeGrid");
+const modal = document.getElementById("locationModal");
+let pendingPlace = null;
+
+async function loadPlaces(){
+  places = await fetch("data/places.json").then(r=>r.json());
+  renderPlaces(places);
+}
+function renderPlaces(list){
+  grid.innerHTML = list.map(p => `
+    <article class="place-tile" data-id="${p.id}">
+      <div class="place-img">${p.image ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover">` : p.name}</div>
+      <h3>${p.name}</h3>
+      <p>${p.metroStation || "Kolkata"}</p>
+    </article>`).join("");
+  document.querySelectorAll(".place-tile").forEach(el => el.onclick = () => requestLocation(el.dataset.id));
+}
+function findPlace(){
+  const q = input.value.trim().toLowerCase();
+  if(!q) return;
+  const p = places.find(x => x.name.toLowerCase().includes(q));
+  if(!p){ alert("Place not found in the current data."); return; }
+  requestLocation(p.id);
+}
+function requestLocation(id){
+  pendingPlace = id;
+  modal.classList.remove("hidden");
+}
+document.getElementById("searchBtn").onclick = findPlace;
+input.addEventListener("keydown", e => { if(e.key === "Enter") findPlace(); });
+document.getElementById("allowLocationBtn").onclick = () => {
+  if(!pendingPlace) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      sessionStorage.setItem("userLat", pos.coords.latitude);
+      sessionStorage.setItem("userLng", pos.coords.longitude);
+      location.href = `place.html?id=${encodeURIComponent(pendingPlace)}`;
+    },
+    () => location.href = `place.html?id=${encodeURIComponent(pendingPlace)}`
+  );
+};
+document.getElementById("continueWithoutLocation").onclick = () => {
+  if(pendingPlace) location.href = `place.html?id=${encodeURIComponent(pendingPlace)}`;
+};
+document.getElementById("themeBtn").onclick = () => {
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+};
+if(localStorage.getItem("theme")==="light") document.body.classList.add("light");
+loadPlaces();
+</script>
 </body>
 </html>

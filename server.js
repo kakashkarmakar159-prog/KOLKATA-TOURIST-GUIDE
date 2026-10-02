@@ -12,8 +12,8 @@
    - Master Admin Edit ID
    - Individual Restaurant Verification IDs
    - Individual Hotel Verification IDs
-   - Verification IDs stored directly in places.json
-   - Atomic places.json saving
+   - Verification IDs stored directly in the split place data files
+   - Atomic split-data saving
    - Protected business editing
 ========================================================= */
 
@@ -81,11 +81,7 @@ const MASTER_EDIT_ID =
 
 const PROJECT_DIR = __dirname;
 
-const PUBLIC_DIR =
-  path.join(
-    PROJECT_DIR,
-    "public"
-  );
+const PUBLIC_DIR = PROJECT_DIR;
 
 const DATA_DIR =
   path.join(
@@ -93,10 +89,13 @@ const DATA_DIR =
     "data"
   );
 
-const DATA_FILE =
-  path.join(
-    DATA_DIR,
-    "places.json"
+const DATA_FILES = Array.from(
+  { length: 10 },
+  (_, index) => {
+    const dataPath = path.join(DATA_DIR, `places-${index + 1}.json`);
+    const rootPath = path.join(PUBLIC_DIR, `places-${index + 1}.json`);
+    return fs.existsSync(dataPath) ? dataPath : rootPath;
+  }
 );
 
 
@@ -272,128 +271,87 @@ function createBookingSms({bookingId,booking,business}){
 ========================================================= */
 
 function loadPlacesData() {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
 
-  if (
-    !fs.existsSync(
-      DATA_FILE
-    )
-  ) {
-    throw new Error(
-      "places.json not found: " +
-      DATA_FILE
-    );
+  const places = [];
+
+  for (const file of DATA_FILES) {
+    if (!fs.existsSync(file)) {
+      throw new Error("Place data file not found: " + file);
+    }
+
+    const raw = fs.readFileSync(file, "utf8");
+
+    if (!raw.trim()) {
+      throw new Error("Place data file is empty: " + file);
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw new Error("Place data file contains invalid JSON: " + file);
+    }
+
+    if (!Array.isArray(parsed)) {
+      throw new Error("Place data file must contain an array: " + file);
+    }
+
+    places.push(...parsed);
   }
 
-
-  const raw =
-    fs.readFileSync(
-      DATA_FILE,
-      "utf8"
-    );
-
-
-  if (!raw.trim()) {
-    throw new Error(
-      "places.json is empty."
-    );
+  if (!places.length) {
+    throw new Error("All place data files are empty.");
   }
 
-
-  let parsed;
-
-  try {
-
-    parsed =
-      JSON.parse(raw);
-
-  } catch (error) {
-
-    throw new Error(
-      "places.json contains invalid JSON."
-    );
-  }
-
-
-  /*
-     Supported formats:
-
-     [
-       {...},
-       {...}
-     ]
-
-     OR
-
-     {
-       "places": [...]
-     }
-  */
-
-  if (
-    Array.isArray(parsed)
-  ) {
-    return parsed;
-  }
-
-
-  if (
-    parsed &&
-    Array.isArray(
-      parsed.places
-    )
-  ) {
-    return parsed.places;
-  }
-
-
-  throw new Error(
-    "places.json must contain an array or { places: [] }."
-  );
+  return places;
 }
 
 
 /* =========================================================
-   SAVE PLACES.JSON ATOMICALLY
+   SAVE SPLIT PLACE DATA ATOMICALLY
 ========================================================= */
 
-function savePlacesData(
-  places
-) {
+function savePlacesData(places) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
 
-  fs.mkdirSync(
-    DATA_DIR,
-    {
-      recursive: true
+  if (!Array.isArray(places)) {
+    throw new Error("Place data must be an array.");
+  }
+
+  const total = places.length;
+  const baseSize = Math.floor(total / DATA_FILES.length);
+  const remainder = total % DATA_FILES.length;
+  let offset = 0;
+  const tempFiles = [];
+
+  try {
+    for (let i = 0; i < DATA_FILES.length; i++) {
+      const size = baseSize + (i < remainder ? 1 : 0);
+      const chunk = places.slice(offset, offset + size);
+      offset += size;
+
+      const tempFile = DATA_FILES[i] + ".tmp";
+      fs.writeFileSync(
+        tempFile,
+        JSON.stringify(chunk, null, 2) + "\n",
+        "utf8"
+      );
+      tempFiles.push({ tempFile, target: DATA_FILES[i] });
     }
-  );
 
-
-  const tempFile =
-    DATA_FILE +
-    ".tmp";
-
-
-  const json =
-    JSON.stringify(
-      places,
-      null,
-      2
-    ) + "\n";
-
-
-  fs.writeFileSync(
-    tempFile,
-    json,
-    "utf8"
-  );
-
-
-  fs.renameSync(
-    tempFile,
-    DATA_FILE
-  );
+    for (const item of tempFiles) {
+      fs.renameSync(item.tempFile, item.target);
+    }
+  } catch (error) {
+    for (const item of tempFiles) {
+      try {
+        if (fs.existsSync(item.tempFile)) fs.unlinkSync(item.tempFile);
+      } catch (_) {}
+    }
+    throw error;
+  }
 }
-
 
 /* =========================================================
    ENTITY LIST
@@ -3206,7 +3164,7 @@ server.listen(
 
     console.log(
       "📁 Verification Source:",
-      DATA_FILE
+      DATA_FILES
     );
 
     console.log(

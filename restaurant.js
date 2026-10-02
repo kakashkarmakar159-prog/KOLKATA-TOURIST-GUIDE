@@ -954,10 +954,10 @@
     editElements.forEach((button) => {
       const url =
         `edit.html?type=restaurant` +
-        `&place=${encodeURIComponent(
+        `&placeId=${encodeURIComponent(
           currentPlace?.id || placeId
         )}` +
-        `&restaurant=${encodeURIComponent(id)}`;
+        `&restaurantId=${encodeURIComponent(id)}`;
 
       /*
         If button is an <a>
@@ -1348,8 +1348,14 @@ async function loadRestaurantPage() {
 
     const params = new URLSearchParams(window.location.search);
 
-    const placeId = params.get("id");
-    const restaurantId = params.get("restaurantId");
+    const placeId =
+        params.get("id") ||
+        params.get("place") ||
+        params.get("placeId");
+
+    const restaurantId =
+        params.get("restaurantId") ||
+        params.get("restaurant");
 
     if (!placeId) {
         showError("Place ID পাওয়া যায়নি।");
@@ -1359,34 +1365,35 @@ async function loadRestaurantPage() {
     try {
 
         // -------------------------------------------------
-        // Load places.json
+        // Load the current split data safely.
+        // First try the old combined file, then fall back
+        // to places-1.json ... places-10.json.
         // -------------------------------------------------
 
-        const response = await fetch("data/places.json", {
-            cache: "no-store"
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `places.json load failed: ${response.status}`
-            );
-        }
-
-        const places = await response.json();
+        const places = await loadRestaurantPlacesData();
 
         if (!Array.isArray(places)) {
-            throw new Error("places.json must contain an array.");
+            throw new Error("Restaurant data must be an array.");
         }
 
         // -------------------------------------------------
         // Find requested place
         // -------------------------------------------------
 
-        const place = places.find(
-            item =>
-                String(item.id || "").toLowerCase() ===
-                String(placeId).toLowerCase()
-        );
+        const requested = String(placeId).trim().toLowerCase();
+
+        const place = places.find(item => {
+            if (!item || typeof item !== "object") return false;
+
+            return [
+                item.id,
+                item.placeId,
+                item.slug,
+                item.name
+            ].some(value =>
+                String(value || "").trim().toLowerCase() === requested
+            );
+        });
 
         if (!place) {
             showError(`Place "${placeId}" পাওয়া যায়নি।`);
@@ -1398,7 +1405,9 @@ async function loadRestaurantPage() {
         // -------------------------------------------------
 
         let restaurants = Array.isArray(place.restaurants)
-            ? place.restaurants
+            ? place.restaurants.filter(
+                r => r && typeof r === "object"
+              )
             : [];
 
         if (!restaurants.length) {
@@ -1407,35 +1416,26 @@ async function loadRestaurantPage() {
         }
 
         // -------------------------------------------------
-        // Remove invalid restaurant entries
-        // -------------------------------------------------
-
-        restaurants = restaurants.filter(r => r && typeof r === "object");
-
-        // -------------------------------------------------
-        // If a restaurantId is provided,
-        // open only that restaurant
+        // Open one restaurant when an ID is supplied.
+        // Otherwise show the restaurant list.
         // -------------------------------------------------
 
         if (restaurantId) {
 
+            const requestedRestaurant =
+                String(restaurantId).trim().toLowerCase();
+
             const selectedRestaurant = restaurants.find(r => {
+                const ids = [
+                    r.restaurantId,
+                    r.RestaurantId,
+                    r["Restaurant ID"],
+                    r.id
+                ];
 
-                const id1 = String(
-                    r.restaurantId || ""
-                ).toLowerCase();
-
-                const id2 = String(
-                    r["Restaurant ID"] || ""
-                ).toLowerCase();
-
-                const requestedId = String(
-                    restaurantId
-                ).toLowerCase();
-
-                return (
-                    id1 === requestedId ||
-                    id2 === requestedId
+                return ids.some(value =>
+                    String(value || "").trim().toLowerCase() ===
+                    requestedRestaurant
                 );
             });
 
@@ -1454,11 +1454,6 @@ async function loadRestaurantPage() {
             return;
         }
 
-        // -------------------------------------------------
-        // No restaurantId
-        // Show restaurant list
-        // -------------------------------------------------
-
         renderRestaurantList(
             place,
             restaurants
@@ -1470,9 +1465,94 @@ async function loadRestaurantPage() {
 
         showError(
             "Restaurant information load করা যাচ্ছে না। " +
-            "দয়া করে places.json file এবং server check করুন।"
+            "দয়া করে split places JSON files এবং server check করুন।"
         );
     }
+}
+
+
+/* =========================================================
+   LOAD RESTAURANT DATA
+   Supports both the old combined file and the current
+   places-1.json ... places-10.json structure.
+   ========================================================= */
+
+async function loadRestaurantPlacesData() {
+
+    const combinedCandidates = [
+        "data/places.json",
+        "./places.json"
+    ];
+
+    for (const url of combinedCandidates) {
+        try {
+            const response = await fetch(url, {
+                cache: "no-store"
+            });
+
+            if (!response.ok) continue;
+
+            const data = await response.json();
+
+            if (Array.isArray(data)) {
+                return data;
+            }
+
+            if (Array.isArray(data.places)) {
+                return data.places;
+            }
+        } catch {
+            // Try the split files below.
+        }
+    }
+
+    const files = Array.from(
+        { length: 10 },
+        (_, index) => index + 1
+    );
+
+    const locations = [
+        number => `data/places-${number}.json`,
+        number => `./places-${number}.json`
+    ];
+
+    for (const makeUrl of locations) {
+
+        const loaded = [];
+        let successful = 0;
+
+        for (const number of files) {
+
+            try {
+                const response = await fetch(
+                    makeUrl(number),
+                    { cache: "no-store" }
+                );
+
+                if (!response.ok) continue;
+
+                const data = await response.json();
+                const chunk = Array.isArray(data)
+                    ? data
+                    : Array.isArray(data.places)
+                        ? data.places
+                        : [];
+
+                if (chunk.length) {
+                    loaded.push(...chunk);
+                    successful++;
+                }
+            } catch {
+                // Keep trying the remaining chunks.
+            }
+        }
+
+        if (successful > 0 && loaded.length > 0) {
+            return loaded;
+        }
+    }
+
+    throw new Error("No places JSON source could be loaded.");
 }
 
 
@@ -1489,100 +1569,94 @@ function renderRestaurantList(place, restaurants) {
         return;
     }
 
+    document.body.classList.remove("ktg-single-restaurant");
+    document.body.classList.add("ktg-restaurant-list-mode");
+
     document.title =
         `${place.name} Restaurants | Kolkata Tourist Guide`;
 
     const heroImage =
         place.image ||
         getFirstRestaurantImage(restaurants) ||
-        "";
+        "https://images.pexels.com/photos/16569842/pexels-photo-16569842.jpeg";
 
     app.innerHTML = `
 
-        <div class="restaurant-page">
+        <div class="ktg-restaurant-list-page">
 
-            <!-- HERO -->
+            <!-- BIG RESTAURANT HERO -->
             <section
-                class="restaurant-hero"
-                style="
-                    background-image:
-                    linear-gradient(
-                        rgba(0,0,0,.55),
-                        rgba(0,0,0,.65)
-                    ),
-                    url('${escapeAttribute(heroImage)}');
-                "
+                class="ktg-restaurant-list-hero"
+                style="--ktg-restaurant-hero-image: url('${escapeAttribute(heroImage)}');"
             >
+                <div class="ktg-restaurant-hero-inner">
 
-                <div class="restaurant-hero-content">
-
-                    <div class="restaurant-badge">
-                        🍽️ Restaurants near ${escapeHTML(place.name)}
+                    <div class="ktg-restaurant-location-pill">
+                        <span>●</span>
+                        Restaurants near ${escapeHTML(place.name)}
                     </div>
 
-                    <h1>
-                        Restaurants
-                    </h1>
+                    <h1>Restaurants</h1>
 
                     <p>
                         ${restaurants.length}
-                        restaurant${restaurants.length > 1 ? "s" : ""}
-                        available near
-                        ${escapeHTML(place.name)}
+                        restaurant${restaurants.length === 1 ? "" : "s"}
+                        available near ${escapeHTML(place.name)}
                     </p>
 
                 </div>
-
             </section>
 
 
-            <!-- TOP BAR -->
-            <div class="restaurant-topbar">
+            <!-- BACK / HOME / DARK-LIGHT MODE -->
+            <div class="ktg-restaurant-list-toolbar">
+
+                <div class="ktg-restaurant-nav-actions">
+                    <button
+                        type="button"
+                        class="ktg-list-back-btn"
+                        onclick="goBack()"
+                    >
+                        ← Back
+                    </button>
+
+                    <a
+                        class="ktg-list-home-btn"
+                        href="index.html"
+                    >
+                        🏠 Home
+                    </a>
+                </div>
 
                 <button
-                    class="restaurant-back-btn"
-                    onclick="goBack()"
+                    type="button"
+                    id="ktgRestaurantThemeBtn"
+                    class="ktg-list-theme-btn"
+                    aria-label="Toggle dark and light mode"
                 >
-                    ← Back
+                    🌙 Dark Mode
                 </button>
-
-                <a
-                    class="restaurant-home-btn"
-                    href="index.html"
-                >
-                    🏠 Home
-                </a>
 
             </div>
 
 
-            <!-- RESTAURANT LIST -->
-            <main class="restaurant-container">
+            <!-- RESTAURANTS -->
+            <main class="ktg-restaurant-list-container">
 
-                <div class="restaurant-section-title">
-
-                    <span>
-                        🍴
-                    </span>
-
+                <div class="ktg-restaurant-list-heading">
+                    <div class="ktg-heading-icon">🍴</div>
                     <div>
                         <h2>
-                            Restaurants near
-                            ${escapeHTML(place.name)}
+                            Restaurants near ${escapeHTML(place.name)}
                         </h2>
-
                         <p>
-                            Choose a restaurant to view
-                            menu, facilities, contact and
-                            other information.
+                            Choose a restaurant to view menu, facilities,
+                            contact and other information.
                         </p>
                     </div>
-
                 </div>
 
-
-                <div class="restaurant-grid">
-
+                <div class="ktg-restaurant-grid">
                     ${restaurants.map(
                         (restaurant, index) =>
                             createRestaurantCard(
@@ -1591,7 +1665,6 @@ function renderRestaurantList(place, restaurants) {
                                 index
                             )
                     ).join("")}
-
                 </div>
 
             </main>
@@ -1599,7 +1672,52 @@ function renderRestaurantList(place, restaurants) {
         </div>
     `;
 
+    setupRestaurantListTheme();
     injectRestaurantStyles();
+}
+
+
+/* =========================================================
+   RESTAURANT LIST THEME
+   ========================================================= */
+
+function setupRestaurantListTheme() {
+
+    const button =
+        document.getElementById("ktgRestaurantThemeBtn");
+
+    if (!button) return;
+
+    const saved =
+        localStorage.getItem("ktg_restaurant_theme");
+
+    const apply = mode => {
+        document.body.classList.toggle(
+            "ktg-restaurant-light",
+            mode === "light"
+        );
+
+        button.textContent =
+            mode === "light"
+                ? "🌙 Dark Mode"
+                : "☀️ Light Mode";
+
+        localStorage.setItem(
+            "ktg_restaurant_theme",
+            mode
+        );
+    };
+
+    apply(saved === "light" ? "light" : "dark");
+
+    button.addEventListener("click", () => {
+        const isLight =
+            document.body.classList.contains(
+                "ktg-restaurant-light"
+            );
+
+        apply(isLight ? "dark" : "light");
+    });
 }
 
 
@@ -1608,6 +1726,9 @@ function renderRestaurantList(place, restaurants) {
    ========================================================= */
 
 function renderSingleRestaurant(place, restaurant) {
+
+    document.body.classList.remove("ktg-restaurant-list-mode", "ktg-restaurant-light");
+    document.body.classList.add("ktg-single-restaurant");
 
     const app = getMainContainer();
 
@@ -1979,6 +2100,7 @@ function createRestaurantCard(
     const id =
         restaurant.restaurantId ||
         restaurant["Restaurant ID"] ||
+        restaurant.id ||
         `restaurant-${index + 1}`;
 
     const image =
@@ -1990,11 +2112,26 @@ function createRestaurantCard(
         restaurant.name ||
         `Restaurant ${index + 1}`;
 
+    const description = Array.isArray(restaurant.description)
+        ? restaurant.description.join(" ")
+        : restaurant.description ||
+          "A dining destination near this Kolkata attraction.";
+
+    const location =
+        restaurant.location ||
+        restaurant.address ||
+        "Kolkata";
+
+    const hours =
+        restaurant.openingTime
+            ? `${restaurant.openingTime} – ${restaurant.closingTime || ""}`
+            : restaurant.openingHours || "Hours available on restaurant page";
+
     return `
 
-        <article class="restaurant-card">
+        <article class="ktg-restaurant-card">
 
-            <div class="restaurant-card-image">
+            <div class="ktg-restaurant-card-image">
 
                 ${
                     image
@@ -2003,28 +2140,26 @@ function createRestaurantCard(
                                 src="${escapeAttribute(image)}"
                                 alt="${escapeAttribute(name)}"
                                 loading="lazy"
-                                onerror="
-                                    this.src='${escapeAttribute(
-                                        place.image || ""
-                                    )}'
-                                "
+                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
                             >
+                            <div class="ktg-restaurant-image-fallback">
+                                🍽️
+                            </div>
                           `
                         : `
-                            <div class="restaurant-no-image">
+                            <div class="ktg-restaurant-image-fallback" style="display:flex;">
                                 🍽️
                             </div>
                           `
                 }
 
                 ${
-                    restaurant.rating
+                    restaurant.rating !== undefined &&
+                    restaurant.rating !== null &&
+                    String(restaurant.rating).trim() !== ""
                         ? `
-                            <span class="restaurant-card-rating">
-                                ⭐
-                                ${escapeHTML(
-                                    restaurant.rating
-                                )}
+                            <span class="ktg-restaurant-rating">
+                                ⭐ ${escapeHTML(restaurant.rating)}
                             </span>
                           `
                         : ""
@@ -2033,9 +2168,9 @@ function createRestaurantCard(
             </div>
 
 
-            <div class="restaurant-card-body">
+            <div class="ktg-restaurant-card-body">
 
-                <div class="restaurant-card-number">
+                <div class="ktg-restaurant-card-number">
                     Restaurant ${index + 1}
                 </div>
 
@@ -2043,95 +2178,44 @@ function createRestaurantCard(
                     ${escapeHTML(name)}
                 </h3>
 
-                ${
-                    restaurant.cuisine
-                        ? `
-                            <div class="restaurant-cuisine">
-                                🍛
-                                ${escapeHTML(
-                                    restaurant.cuisine
-                                )}
-                            </div>
-                          `
-                        : ""
-                }
+                <div class="ktg-restaurant-cuisine">
+                    🍛 ${escapeHTML(
+                        restaurant.cuisine || "Indian Cuisine"
+                    )}
+                </div>
 
-                ${
-                    restaurant.description
-                        ? `
-                            <p>
-                                ${escapeHTML(
-                                    restaurant.description
-                                )}
-                            </p>
-                          `
-                        : ""
-                }
+                <p class="ktg-restaurant-description">
+                    ${escapeHTML(description)}
+                </p>
 
+                <div class="ktg-restaurant-card-info">
 
-                <div class="restaurant-card-info">
+                    <span>
+                        📍 ${escapeHTML(location)}
+                    </span>
 
-                    ${
-                        restaurant.location
-                            ? `
-                                <span>
-                                    📍
-                                    ${escapeHTML(
-                                        restaurant.location
-                                    )}
-                                </span>
-                              `
-                            : ""
-                    }
+                    <span>
+                        💰 ${escapeHTML(
+                            restaurant.price ||
+                            restaurant.averageCost ||
+                            "Price on request"
+                        )}
+                    </span>
 
-                    ${
-                        restaurant.price
-                            ? `
-                                <span>
-                                    💰
-                                    ${escapeHTML(
-                                        restaurant.price
-                                    )}
-                                </span>
-                              `
-                            : ""
-                    }
-
-                    ${
-                        restaurant.openingTime
-                            ? `
-                                <span>
-                                    🕐
-                                    ${escapeHTML(
-                                        restaurant.openingTime
-                                    )}
-                                    –
-                                    ${escapeHTML(
-                                        restaurant.closingTime ||
-                                        ""
-                                    )}
-                                </span>
-                              `
-                            : ""
-                    }
+                    <span>
+                        🕐 ${escapeHTML(hours)}
+                    </span>
 
                 </div>
 
-
-                <div class="restaurant-card-actions">
-
-                    <a
-                        href="restaurant.html?id=${encodeURIComponent(
-                            place.id
-                        )}&restaurantId=${encodeURIComponent(
-                            id
-                        )}"
-                        class="restaurant-view-btn"
-                    >
-                        View Restaurant →
-                    </a>
-
-                </div>
+                <a
+                    href="restaurant.html?id=${encodeURIComponent(
+                        place.id
+                    )}&restaurantId=${encodeURIComponent(id)}"
+                    class="ktg-restaurant-view-btn"
+                >
+                    View Restaurant →
+                </a>
 
             </div>
 
@@ -2389,8 +2473,11 @@ function openRestaurantEdit(
         return;
     }
 
+    // Use a relative URL so the edit page also works on
+    // GitHub Pages projects hosted inside a repository path
+    // such as /KTG/ instead of only at the domain root.
     window.location.href =
-        `/edit.html?type=restaurant` +
+        `edit.html?type=restaurant` +
         `&placeId=${encodeURIComponent(placeId)}` +
         `&restaurantId=${encodeURIComponent(restaurantId)}`;
 }
@@ -2696,6 +2783,533 @@ function injectRestaurantStyles() {
             border-radius: 10px;
             text-decoration: none;
             font-weight: 700;
+        }
+
+        /* SCREENSHOT-MATCHED RESTAURANT LIST */
+
+        .restaurant-page {
+            min-height: 100vh;
+        }
+
+        .restaurant-hero {
+            min-height: 325px;
+            padding: 0 7%;
+            align-items: center;
+            background-position: center;
+        }
+
+        .restaurant-hero-content {
+            max-width: 760px;
+            margin-top: 25px;
+        }
+
+        .restaurant-badge {
+            display: inline-block;
+            background: rgba(255,255,255,.16);
+            border: 1px solid rgba(255,255,255,.30);
+            padding: 8px 14px;
+            border-radius: 24px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(8px);
+        }
+
+        .restaurant-hero h1 {
+            font-size: clamp(42px, 6vw, 64px);
+            line-height: 1;
+            margin: 0 0 10px;
+            font-weight: 800;
+        }
+
+        .restaurant-hero p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+            color: #f0f2f5;
+        }
+
+        .restaurant-topbar {
+            min-height: 58px;
+            padding: 10px 7%;
+            background: rgba(255,255,255,.96);
+            border-bottom: 1px solid #dfe3ea;
+        }
+
+        .restaurant-container {
+            width: min(1250px, 92%);
+            margin: 30px auto 55px;
+        }
+
+        .restaurant-section-title {
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .restaurant-section-title > span {
+            font-size: 28px;
+        }
+
+        .restaurant-section-title h2 {
+            font-size: clamp(22px, 3vw, 30px);
+            color: #171b24;
+        }
+
+        .restaurant-section-title p {
+            font-size: 14px;
+        }
+
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .restaurant-card {
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 32px rgba(0,0,0,.12);
+        }
+
+        .restaurant-card-image {
+            height: 205px;
+        }
+
+        .restaurant-card-rating {
+            top: 12px;
+            right: 12px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .restaurant-card-body {
+            padding: 17px;
+        }
+
+        .restaurant-card-number {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .restaurant-card h3 {
+            font-size: 21px;
+            margin: 4px 0 8px;
+            color: #171b24;
+        }
+
+        .restaurant-cuisine {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #343a46;
+        }
+
+        .restaurant-card p {
+            font-size: 13px;
+            color: #68707d;
+            line-height: 1.45;
+            margin: 0 0 10px;
+        }
+
+        .restaurant-card-info {
+            gap: 5px;
+            margin: 12px 0;
+            font-size: 12px;
+            color: #555d69;
+        }
+
+        .restaurant-card-actions {
+            margin-top: 12px;
+        }
+
+        .restaurant-view-btn {
+            padding: 11px;
+            border-radius: 9px;
+            font-size: 13px;
+            background: #111827;
+        }
+
+
+        @media (max-width: 620px) {
+            .restaurant-grid {
+                grid-template-columns: 1fr;
+            }
+            .restaurant-hero {
+                min-height: 300px;
+                padding: 0 6%;
+            }
+            .restaurant-container {
+                width: 94%;
+            }
+        }
+
+
+        /* =====================================================
+           NEW SCREENSHOT-MATCHED RESTAURANT LIST
+           ===================================================== */
+
+        body.ktg-restaurant-list-mode {
+            background: #07101b;
+            color: #17202d;
+            min-height: 100vh;
+        }
+
+        body.ktg-restaurant-list-mode::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            background:
+                linear-gradient(
+                    rgba(4, 13, 24, .67),
+                    rgba(4, 13, 24, .76)
+                ),
+                url("https://images.pexels.com/photos/16569842/pexels-photo-16569842.jpeg")
+                center / cover no-repeat;
+            pointer-events: none;
+        }
+
+        .ktg-restaurant-list-page {
+            min-height: calc(100vh - 58px);
+        }
+
+        .ktg-restaurant-list-hero {
+            min-height: 335px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            background-image:
+                linear-gradient(
+                    90deg,
+                    rgba(0,0,0,.58),
+                    rgba(0,0,0,.33),
+                    rgba(0,0,0,.70)
+                ),
+                var(--ktg-restaurant-hero-image);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .ktg-restaurant-list-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                0deg,
+                rgba(0,0,0,.30),
+                transparent 48%
+            );
+            pointer-events: none;
+        }
+
+        .ktg-restaurant-hero-inner {
+            width: min(1160px, 90%);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            padding: 35px 0;
+        }
+
+        .ktg-restaurant-location-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border: 1px solid rgba(255,255,255,.32);
+            border-radius: 999px;
+            background: rgba(255,255,255,.13);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .ktg-restaurant-location-pill span {
+            font-size: 10px;
+        }
+
+        .ktg-restaurant-list-hero h1 {
+            margin: 16px 0 8px;
+            font-size: clamp(42px, 7vw, 70px);
+            line-height: .95;
+            letter-spacing: -1.5px;
+            color: #fff;
+        }
+
+        .ktg-restaurant-list-hero p {
+            margin: 0;
+            font-size: 16px;
+            color: rgba(255,255,255,.88);
+        }
+
+        .ktg-restaurant-list-toolbar {
+            width: 100%;
+            min-height: 62px;
+            padding: 10px max(5%, calc((100% - 1160px) / 2));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255,255,255,.94);
+            border-bottom: 1px solid rgba(15,25,40,.12);
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+        }
+
+        .ktg-restaurant-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .ktg-list-back-btn,
+        .ktg-list-home-btn,
+        .ktg-list-theme-btn {
+            min-height: 40px;
+            padding: 9px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            border: 1px solid #dfe4ec;
+            background: #f6f8fb;
+            color: #17202d;
+            transition: .2s ease;
+        }
+
+        .ktg-list-back-btn {
+            background: #111827;
+            color: #fff;
+            border-color: #111827;
+        }
+
+        .ktg-list-back-btn:hover,
+        .ktg-list-home-btn:hover,
+        .ktg-list-theme-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 18px rgba(20,30,50,.12);
+        }
+
+        .ktg-list-theme-btn {
+            background: #17202d;
+            color: #fff;
+            border-color: #17202d;
+        }
+
+        .ktg-restaurant-list-container {
+            width: min(1160px, 92%);
+            margin: 0 auto;
+            padding: 34px 0 60px;
+        }
+
+        .ktg-restaurant-list-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            margin-bottom: 22px;
+            color: #fff;
+        }
+
+        .ktg-heading-icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .ktg-restaurant-list-heading h2 {
+            margin: 0;
+            font-size: clamp(23px, 3vw, 31px);
+            line-height: 1.2;
+            color: #fff;
+        }
+
+        .ktg-restaurant-list-heading p {
+            margin: 7px 0 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(255,255,255,.72);
+        }
+
+        .ktg-restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .ktg-restaurant-card {
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid rgba(255,255,255,.68);
+            border-radius: 19px;
+            box-shadow: 0 18px 42px rgba(0,0,0,.22);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .ktg-restaurant-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 23px 48px rgba(0,0,0,.28);
+        }
+
+        .ktg-restaurant-card-image {
+            height: 205px;
+            position: relative;
+            overflow: hidden;
+            background: #dfe5eb;
+        }
+
+        .ktg-restaurant-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ktg-restaurant-image-fallback {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .ktg-restaurant-rating {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fff;
+            color: #242a34;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0,0,0,.16);
+        }
+
+        .ktg-restaurant-card-body {
+            padding: 17px;
+        }
+
+        .ktg-restaurant-card-number {
+            margin-bottom: 3px;
+            font-size: 11px;
+            color: #818995;
+        }
+
+        .ktg-restaurant-card h3 {
+            margin: 0 0 8px;
+            font-size: 21px;
+            line-height: 1.2;
+            color: #151b25;
+        }
+
+        .ktg-restaurant-cuisine {
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #353c47;
+        }
+
+        .ktg-restaurant-description {
+            min-height: 39px;
+            margin: 0 0 12px;
+            font-size: 12.5px;
+            line-height: 1.48;
+            color: #69717d;
+        }
+
+        .ktg-restaurant-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin: 0 0 14px;
+            font-size: 11.5px;
+            line-height: 1.35;
+            color: #59616c;
+        }
+
+        .ktg-restaurant-card-info span {
+            display: block;
+        }
+
+        .ktg-restaurant-view-btn {
+            display: block;
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 9px;
+            background: #111827;
+            color: #fff;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .ktg-restaurant-view-btn:hover {
+            background: #202b3e;
+        }
+
+        /* LIGHT MODE */
+        body.ktg-restaurant-light {
+            background: #eef2f6;
+        }
+
+        body.ktg-restaurant-light::before {
+            background:
+                linear-gradient(
+                    rgba(235,240,245,.72),
+                    rgba(225,231,237,.82)
+                ),
+                url("https://images.pexels.com/photos/16569842/pexels-photo-16569842.jpeg")
+                center / cover no-repeat;
+        }
+
+        body.ktg-restaurant-light .ktg-restaurant-list-heading h2 {
+            color: #18202c;
+        }
+
+        body.ktg-restaurant-light .ktg-restaurant-list-heading p {
+            color: #657080;
+        }
+
+        body.ktg-restaurant-light .ktg-restaurant-list-toolbar {
+            background: rgba(255,255,255,.96);
+        }
+
+        @media (max-width: 760px) {
+            .ktg-restaurant-list-hero {
+                min-height: 300px;
+            }
+
+            .ktg-restaurant-list-toolbar {
+                padding: 10px 4%;
+            }
+
+            .ktg-restaurant-list-container {
+                width: 94%;
+                padding-top: 27px;
+            }
+
+            .ktg-restaurant-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+        }
+
+        @media (max-width: 470px) {
+            .ktg-restaurant-list-toolbar {
+                flex-wrap: wrap;
+            }
+
+            .ktg-list-theme-btn {
+                margin-left: auto;
+            }
+
+            .ktg-restaurant-card-image {
+                height: 190px;
+            }
+
+            .ktg-restaurant-list-hero h1 {
+                font-size: 47px;
+            }
         }
 
         /* DETAIL */

@@ -1,6 +1,31 @@
 "use strict";
 
-const socket = io();
+const socket = (typeof io === "function")
+  ? io({reconnection:true,reconnectionAttempts:8,timeout:8000})
+  : createOfflineChatSocket();
+
+function createOfflineChatSocket(){
+  const handlers=new Map();
+  const offlineId="local-"+Math.random().toString(36).slice(2,10);
+  return {
+    id:offlineId, connected:true,
+    on(event,fn){ if(!handlers.has(event)) handlers.set(event,[]); handlers.get(event).push(fn); return this; },
+    emit(event,payload){
+      const key="ktg-offline-chat-"+(payload?.groupId||"group");
+      if(event==="joinGroup"){
+        const saved=JSON.parse(localStorage.getItem(key)||"[]");
+        (handlers.get("groupState")||[]).forEach(fn=>fn({members:[{id:offlineId,name:payload.name}],locations:[],messages:saved}));
+      } else if(event==="chatMessage"){
+        const saved=JSON.parse(localStorage.getItem(key)||"[]");
+        const message={messageId:"local-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),senderId:offlineId,id:offlineId,name:payload.name||"Member",text:String(payload.text||""),replyTo:payload.replyTo||null,createdAt:Date.now()};
+        saved.push(message); localStorage.setItem(key,JSON.stringify(saved.slice(-200)));
+        (handlers.get("chatMessage")||[]).forEach(fn=>fn(message));
+      }
+      return this;
+    }
+  };
+}
+
 const params = new URLSearchParams(location.search);
 const place = params.get("place") || params.get("id") || "group";
 const groupId = `place-${place}`;
@@ -28,7 +53,7 @@ function timeLabel(ts){
 function openChat(){
   $("nameGate").style.display="none";
   $("nameInput").blur();
-  requestLocation();
+  try { requestLocation(); } catch(e) {}
   socket.emit("joinGroup", {groupId, name:myName});
 }
 function updateMembers(){

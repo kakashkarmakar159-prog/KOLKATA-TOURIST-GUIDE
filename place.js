@@ -791,19 +791,14 @@ if (hotelBtn) {
             "click",
             function () {
 
-                const modal =
-                    document.getElementById(
-                        "nameModal"
-                    );
+                const placeId =
+                    currentPlace && currentPlace.id
+                        ? currentPlace.id
+                        : "group";
 
-
-                if (modal) {
-
-                    modal.classList.remove(
-                        "hidden"
-                    );
-
-                }
+                window.location.href =
+                    "chat.html?place=" +
+                    encodeURIComponent(placeId);
 
             }
         );
