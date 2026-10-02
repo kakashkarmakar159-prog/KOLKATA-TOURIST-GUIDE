@@ -96,11 +96,30 @@
     });
   }
 
+  /*
+     IMPORTANT:
+     When the real Node/Express server is running, let /api/* requests
+     reach the server so Edit -> Save writes to the real JSON database.
+     The static mock API is used only when there is no backend.
+  */
+  const IS_STATIC_HOST =
+    location.protocol === 'file:' ||
+    /\.github\.io$/i.test(location.hostname) ||
+    location.hostname === 'localhost' && !window.__KTG_SERVER_MODE__;
+
   window.fetch = async function(input, init){
     const rawUrl = typeof input==='string' ? input : input?.url || '';
     const absoluteUrl = new URL(rawUrl, location.href);
     const path = absoluteUrl.pathname;
     const method = (init?.method||'GET').toUpperCase();
+
+    /*
+       Real Express server mode:
+       never intercept /api/*.
+    */
+    if(!IS_STATIC_HOST && path.startsWith('/api/')){
+      return nativeFetch(input, init);
+    }
 
     /* Old code requests places.json. Always serve the combined
        10-file database instead of the old large file. */

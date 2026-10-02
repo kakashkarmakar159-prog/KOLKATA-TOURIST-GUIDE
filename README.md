@@ -33,3 +33,7 @@ For production live maps, connect `map.html` to a map provider and add latitude/
 
 ## GitHub Pages
 This package is prepared for a repository project site such as `/KTG/`. The contents of `public/` are moved to the repository root, `.nojekyll` is included, and `/data/places.json` is loaded using project-relative URLs. Admin hotel/restaurant edits are stored in browser localStorage in static mode because GitHub Pages cannot run the Express server or write back to JSON files. For shared server-side persistence, run the existing Node/Express server on a server host.
+
+
+## Edit/Save persistence
+The Edit system writes changes to the JSON place-data files when the Node/Express server is running. GitHub Pages remains static and uses browser-only fallback storage unless a separate backend is configured. See `EDIT_SAVE_SETUP.md`.

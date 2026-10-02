@@ -319,6 +319,22 @@ function savePlacesData(places) {
     throw new Error("Place data must be an array.");
   }
 
+  /*
+     Persistent database for the Node/Express version:
+     write back to the same 10 JSON files used by the site.
+     A backup of each existing file is created before replacement.
+  */
+  for (const file of DATA_FILES) {
+    if (fs.existsSync(file)) {
+      const backup = file + ".bak";
+      try {
+        fs.copyFileSync(file, backup);
+      } catch (e) {
+        console.warn("Could not create backup:", file, e.message);
+      }
+    }
+  }
+
   const total = places.length;
   const baseSize = Math.floor(total / DATA_FILES.length);
   const remainder = total % DATA_FILES.length;
