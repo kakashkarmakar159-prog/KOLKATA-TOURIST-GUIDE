@@ -40,3 +40,8 @@ KTG_ADMIN_ID=your-secret-master-id
 ```
 
 in the server environment.
+
+
+## Important data-flow fix
+
+Restaurant/Place pages now read the latest saved split JSON data through the live server API. The compatibility `/places.json` endpoint is generated from the current split files, so an Edit -> Save (for example Rating 4.6 -> 4.5) is reflected on the public restaurant page after refresh. On GitHub Pages, the static compatibility layer uses browser localStorage because GitHub Pages cannot write repository files from client-side JavaScript.

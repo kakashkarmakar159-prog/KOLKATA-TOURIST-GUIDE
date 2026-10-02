@@ -143,8 +143,28 @@ app.use(
 
 
 /* =========================================================
-   STATIC WEBSITE
+   STATIC WEBSITE + LIVE DATA ROUTES
+
+   IMPORTANT: places.json is a compatibility endpoint. The actual
+   editable source is the split places-1.json ... places-10.json
+   files. Always build places.json responses from the latest split
+   data so the public website never reads stale data after an edit.
 ========================================================= */
+
+app.get(["/places.json", "/data/places.json"], (req, res) => {
+  try {
+    const places = loadPlacesData();
+    res.set({
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    });
+    return res.json(places);
+  } catch (error) {
+    console.error("GET live places.json error:", error);
+    return sendJsonError(res, 500, error.message || "Place data could not be loaded.");
+  }
+});
 
 app.use(
   express.static(

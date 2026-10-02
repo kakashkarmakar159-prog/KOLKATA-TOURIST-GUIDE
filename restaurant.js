@@ -182,6 +182,25 @@
      ========================================================= */
 
   async function loadPlacesJSON() {
+    /*
+       On a real Node/Express server, /api/places reads the latest
+       saved split JSON files. On GitHub Pages, github-pages.js
+       supplies the static compatibility data + local overrides.
+    */
+    try {
+      const apiResponse = await fetch(`${API_BASE}/places`, {
+        cache: "no-store"
+      });
+
+      if (apiResponse.ok) {
+        const apiData = await apiResponse.json();
+        if (Array.isArray(apiData)) return apiData;
+        if (Array.isArray(apiData.places)) return apiData.places;
+      }
+    } catch (_) {
+      // Static/GitHub Pages: fall through to places.json.
+    }
+
     const response = await fetch(DATA_URL, {
       cache: "no-store"
     });
