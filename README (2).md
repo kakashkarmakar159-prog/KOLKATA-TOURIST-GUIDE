@@ -47,3 +47,16 @@ The Edit system writes changes to the JSON place-data files when the Node/Expres
 - The visitor may add their own Gemini API key and model from the Profile button. The key is stored only in that browser's local storage and is sent directly from that browser to Google's Gemini API when the visitor uses the place AI chat. The KTG server does not store visitors' Gemini keys. Do not save a personal API key on a shared/public device.
 - Location permission is requested after first profile creation. Location remains optional; features requiring it need browser permission and a secure context (HTTPS or localhost).
 - These local profiles are browser/device profiles, not verified accounts. Clearing browser data or changing browser/device removes access to that local profile. Cross-device accounts require a separate authentication/database service.
+
+## Profile, Design, Memory and AI Settings
+
+- On the first visit, create a profile with a display name and optional photo.
+- Profile photos are resized/compressed in the browser to a maximum of 300 KB.
+- The saved profile name and photo are reused automatically by group chat; the chat page no longer asks for a second name.
+- Click the profile chip in the top-right corner to open Profile & Settings.
+- Design settings let the visitor adjust overall page scale, text scale and compact spacing.
+- My Memory is local to this browser and is included as context in the visitor's Kolkata Tourist AI prompts.
+- Add a personal Gemini API key later under Profile & Settings → AI Settings. No key is required to create a profile or use non-AI website features.
+- The default AI model is `gemini-3.8-flash`; it can be changed in AI Settings. Model availability and quotas are controlled by Google and the API key's project.
+
+Privacy note: this build stores the profile, photo, personal memory and Gemini API key in the browser's local storage. Anyone with access to that browser profile may be able to inspect local storage. For a public multi-user production deployment, use authenticated server-side accounts and a secure server-side API-key vault/proxy rather than browser-local API keys.

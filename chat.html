@@ -190,7 +190,7 @@ function createOfflineChatSocket(){
       if(event === "joinGroup"){
         const saved = JSON.parse(localStorage.getItem("ktg-offline-chat-" + (payload.groupId||"group")) || "[]");
         (handlers.get("groupState")||[]).forEach(fn => fn({
-          members:[{id:offlineId,name:payload.name}],
+          members:[{id:offlineId,name:payload.name,avatar:payload.avatar||""}],
           locations:[],
           messages:saved
         }));
@@ -202,6 +202,7 @@ function createOfflineChatSocket(){
           senderId:offlineId,
           id:offlineId,
           name:payload.name||"Member",
+          avatar:payload.avatar||"",
           text:String(payload.text||""),
           replyTo:payload.replyTo||null,
           createdAt:Date.now()
@@ -228,6 +229,7 @@ let myAvatar = "";
 try { const savedProfile = JSON.parse(localStorage.getItem("ktg-user-profile-v1") || localStorage.getItem("ktg-user-profile") || "null"); if(savedProfile && savedProfile.name){ myName=String(savedProfile.name).slice(0,60); myAvatar=String(savedProfile.avatar||""); } } catch(_) {}
 let replyingTo = null;
 let watchId = null;
+let chatOpened = false;
 let map = null;
 const mapMarkers = new Map();
 
@@ -242,10 +244,10 @@ function timeLabel(ts){
   return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
 }
 function openChat(){
+  if(!myName){ window.KTGProfile?.open(false); return; }
   $("nameGate").style.display="none";
   $("nameInput").blur();
-  // Location is optional; the chat interface must open even when permission is denied.
-  try { requestLocation(); } catch(e) {}
+  if(!chatOpened){ chatOpened=true; try { requestLocation(); } catch(e) {} }
   socket.emit("joinGroup", {groupId, name:myName, avatar:myAvatar});
 }
 function updateMembers(){
@@ -289,6 +291,7 @@ function setReply(m){
 function clearReply(){replyingTo=null;$("replyBar").hidden=true;$("replyName").textContent="";$("replyText").textContent="";}
 
 function requestLocation(){
+  if(watchId!==null){ try{navigator.geolocation?.clearWatch(watchId)}catch(_){} watchId=null; }
   if(!navigator.geolocation){
     $("trackStatus").textContent="This browser does not support live location.";
     addSystem("Live location is not supported by this browser.");
@@ -389,8 +392,8 @@ socket.on("disconnect",()=>{ /* reconnect handled automatically by Socket.IO */ 
 
 const storedProfile = (()=>{try{return JSON.parse(localStorage.getItem("ktg-user-profile-v1")||localStorage.getItem("ktg-user-profile")||"null")}catch(_){return null}})();
 if(storedProfile && storedProfile.name){myName=String(storedProfile.name).slice(0,60);myAvatar=String(storedProfile.avatar||"");$("nameGate").style.display="none";openChat();}
-else {const stored=sessionStorage.getItem("chatName");if(stored)$("nameInput").value=stored;$("nameInput").focus();}
-document.addEventListener("ktg:profile-updated",event=>{const p=event.detail||{};if(!p.name)return;myName=String(p.name).slice(0,60);myAvatar=String(p.avatar||"");$("nameGate").style.display="none";openChat();});
+else { /* profile.js opens the one-time profile creation form; do not ask for a second chat name */ $("nameGate").style.display="none"; }
+document.addEventListener("ktg:profile-updated",event=>{const p=event.detail||{};if(!p.name)return;myName=String(p.name).slice(0,60);myAvatar=String(p.avatar||"");$("nameGate").style.display="none";if(chatOpened)socket.emit("joinGroup",{groupId,name:myName,avatar:myAvatar});else openChat();});
 
 </script>
 <script src="profile.js"></script>

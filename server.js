@@ -3021,6 +3021,7 @@ io.on("connection", socket => {
       senderId:socket.id,
       id:socket.id,
       name:String(socket.data.name||payload.name||"Member").slice(0,60),
+      avatar:String(socket.data.avatar||payload.avatar||"").slice(0,420000),
       text,
       createdAt:Date.now(),
       replyTo:safeObject(payload.replyTo)?{

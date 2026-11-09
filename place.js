@@ -867,57 +867,26 @@ if (hotelBtn) {
 ===================================================== */
 
 function joinChat() {
-
-    const input =
-        document.getElementById(
-            "nameInput"
-        );
-
-
-    if (!input) {
-
-        alert(
-            "Name input was not found."
-        );
-
+    const profile = window.KTGProfile && window.KTGProfile.get ? window.KTGProfile.get() : null;
+    if (profile && profile.name) {
+        sessionStorage.setItem("chatName", profile.name);
+        sessionStorage.setItem("chatPlace", currentPlace && currentPlace.id ? currentPlace.id : "group");
+        window.location.href = "chat.html?place=" + encodeURIComponent(currentPlace && currentPlace.id ? currentPlace.id : "group");
         return;
-
     }
-
-
-    const name =
-        input.value.trim();
-
-
-    if (!name) {
-
-        alert(
-            "Please enter your name."
-        );
-
+    if (window.KTGProfile && window.KTGProfile.open) {
+        window.KTGProfile.open(false);
+        document.addEventListener("ktg:profile-updated", function onProfile(event) {
+            document.removeEventListener("ktg:profile-updated", onProfile);
+            const name = event.detail && event.detail.name;
+            if (!name) return;
+            sessionStorage.setItem("chatName", name);
+            sessionStorage.setItem("chatPlace", currentPlace && currentPlace.id ? currentPlace.id : "group");
+            window.location.href = "chat.html?place=" + encodeURIComponent(currentPlace && currentPlace.id ? currentPlace.id : "group");
+        });
         return;
-
     }
-
-
-    sessionStorage.setItem(
-        "chatName",
-        name
-    );
-
-
-    sessionStorage.setItem(
-        "chatPlace",
-        currentPlace.id
-    );
-
-
-    window.location.href =
-        "chat.html?place=" +
-        encodeURIComponent(
-            currentPlace.id
-        );
-
+    alert("Please create your profile first.");
 }
 
 
