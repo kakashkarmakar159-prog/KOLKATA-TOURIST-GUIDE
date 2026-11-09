@@ -176,7 +176,7 @@ $("messageForm").addEventListener("submit",e=>{
 $("joinBtn").onclick=()=>{
   const value=$("nameInput").value.trim();
   if(value.length<2){$("nameInput").focus();return;}
-  myName=value.slice(0,60); localStorage.setItem("ktgChatName",myName); sessionStorage.setItem("chatName",myName); openChat();
+  myName=value.slice(0,60); sessionStorage.setItem("chatName",myName); openChat();
 };
 $("nameInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinBtn").click();});
 
@@ -194,11 +194,7 @@ socket.on("locationUpdate",m=>{if(!m||m.groupId!==groupId||!m.id)return;location
 socket.on("connect",()=>{if(myName)socket.emit("joinGroup",{groupId,name:myName});});
 socket.on("disconnect",()=>{ /* reconnect handled automatically by Socket.IO */ });
 
-const stored=localStorage.getItem("ktgChatName") || sessionStorage.getItem("chatName");
-if(stored && stored.trim().length >= 2){
-  myName=stored.trim().slice(0,60);
-  localStorage.setItem("ktgChatName",myName);
-  openChat();
-} else {
-  $("nameInput").focus();
-}
+const stored=sessionStorage.getItem("chatName");
+// Always ask on entry as requested. A stored name is offered as a convenient default only.
+if(stored)$("nameInput").value=stored;
+$("nameInput").focus();

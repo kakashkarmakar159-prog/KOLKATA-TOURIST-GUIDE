@@ -6,7 +6,6 @@
   <title>Place | Kolkata Tourist Guide</title>
   <style>
 /* INTERNAL CSS: css/style.css */
-css
 * {
   box-sizing: border-box;
 }
@@ -658,35 +657,13 @@ body.light .full-input {
 
 
 
-/* =========================================
-   GEMINI AI CHAT INTERFACE
-========================================= */
-.ai-messages{display:flex;flex-direction:column;gap:14px;max-height:420px;overflow-y:auto;margin:22px 0;padding:4px 2px;scroll-behavior:smooth;text-align:left}
-.ai-welcome,.ai-message{display:flex;align-items:flex-start;gap:10px;max-width:92%}
-.ai-welcome{margin-right:auto}
-.ai-avatar,.ai-user-avatar{width:34px;height:34px;min-width:34px;border-radius:50%;display:grid;place-items:center;background:rgba(145,105,235,.22);color:#d9c8ff;font-weight:800}
-.ai-message{padding:12px 15px;border-radius:17px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
-.ai-message.ai-user{margin-left:auto;background:rgba(119,78,220,.28);border:1px solid rgba(185,155,255,.22);color:#fff;border-bottom-right-radius:5px}
-.ai-message.ai-model{margin-right:auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);color:#f5f7fb;border-bottom-left-radius:5px}
-.ai-welcome p{margin:5px 0 0;line-height:1.5;color:#d4dbe7;text-align:left}
-.ai-message-time{display:block;margin-top:5px;font-size:10px;opacity:.65;text-align:right}
-.ai-typing{display:flex;gap:5px;padding:13px 16px;align-items:center}
-.ai-typing i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.65;animation:aiPulse 1s infinite alternate}
-.ai-typing i:nth-child(2){animation-delay:.2s}.ai-typing i:nth-child(3){animation-delay:.4s}
-@keyframes aiPulse{to{opacity:.2;transform:translateY(-3px)}}
-#aiForm{align-items:center}
-#aiForm input{min-width:0}
-#aiForm button{border:0;border-radius:50%;width:46px;height:46px;min-width:46px;background:#7042d8;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 5px 16px rgba(50,25,110,.25)}
-#aiForm button:disabled{opacity:.55;cursor:wait}
-#aiStatus{display:block;margin-top:10px;opacity:.75}
-body.light .ai-message.ai-model{background:rgba(255,255,255,.72);color:#172033;border-color:rgba(40,50,70,.12)}
-body.light .ai-welcome p{color:#435064}
-@media(max-width:600px){.ai-box{padding:20px 14px}.ai-messages{max-height:360px}.ai-message{max-width:96%}}
+/* Personal Gemini AI chat */
+.ktg-ai-box{padding:22px!important}.ktg-ai-messages{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto;padding:8px 2px;margin:12px 0}.ktg-ai-message{display:flex}.ktg-ai-message.user{justify-content:flex-end}.ktg-ai-bubble{max-width:88%;padding:12px 15px;border-radius:16px;background:rgba(255,255,255,.13);color:inherit;line-height:1.55;white-space:normal;overflow-wrap:anywhere}.ktg-ai-message.user .ktg-ai-bubble{background:#7046d8;color:#fff;border-bottom-right-radius:5px}.ktg-ai-message.assistant .ktg-ai-bubble{border-bottom-left-radius:5px}.ktg-ai-compose{display:flex;gap:9px;align-items:stretch}.ktg-ai-compose textarea{flex:1;min-width:0;resize:vertical;min-height:48px;max-height:130px;padding:13px 15px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:inherit;font:inherit;outline:none}.ktg-ai-compose button{width:50px;min-width:50px;border:0;border-radius:14px;background:#7046d8;color:#fff;font-size:22px;cursor:pointer}.ktg-ai-compose button:disabled{opacity:.5;cursor:wait}.ktg-ai-footer{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:9px;font-size:11px;color:#b8bfd0}.ktg-ai-footer button{border:0;background:transparent;color:#bda5ff;text-decoration:underline;cursor:pointer;font:inherit}
+@media(max-width:600px){.ktg-ai-box{padding:15px!important}.ktg-ai-messages{max-height:300px}}
 
 </style>
   <style>
 /* INTERNAL CSS: css/place.css */
-css
 /* =========================================
    PLACE DETAILS PAGE
 ========================================= */
@@ -1176,21 +1153,19 @@ body.light .question-row input {
 <main class="place-page">
   <section id="placeCard" class="place-card"></section>
 
-  <section class="ai-guide">
+  <section class="ai-guide" id="ktgAiGuide">
     <p class="eyebrow">AI GUIDE</p>
     <h2>Ask about this place</h2>
-    <div class="ai-box" id="aiBox">
+    <div class="ai-box ktg-ai-box">
       <div class="spark">✦</div>
       <h3>Kolkata Tourist AI</h3>
-      <p class="ai-intro">Ask about this place, how to reach it, attractions, timings, tickets or anything else about Kolkata.</p>
-      <div id="aiMessages" class="ai-messages" aria-live="polite" aria-label="AI conversation">
-        <div class="ai-welcome"><span class="ai-avatar">✦</span><div><b>Kolkata Tourist AI</b><p> নমস্কার! আমি এই জায়গা সম্পর্কে আপনাকে সাহায্য করতে প্রস্তুত। কী জানতে চান?</p></div></div>
+      <p>Ask about this place, how to reach it, attractions, opening hours or other travel details.</p>
+      <div id="ktgAiMessages" class="ktg-ai-messages" aria-live="polite"></div>
+      <div class="ktg-ai-compose">
+        <textarea id="ktgAiInput" rows="2" maxlength="2000" placeholder="Ask a question..."></textarea>
+        <button id="ktgAiSend" type="button" aria-label="Send question">➤</button>
       </div>
-      <form id="aiForm" class="question-row">
-        <input id="aiQuestion" maxlength="4000" placeholder="Ask a question..." autocomplete="off" aria-label="Ask Kolkata Tourist AI">
-        <button id="aiSend" type="submit" aria-label="Send message">➤</button>
-      </form>
-      <small id="aiStatus">Powered by Gemini AI</small>
+      <div class="ktg-ai-footer"><span id="ktgAiStatus">Your own Gemini API key is used from your Profile.</span><button id="ktgAiKeyBtn" type="button">AI Settings</button></div>
     </div>
   </section>
 </main>
@@ -2109,7 +2084,6 @@ function joinChat() {
     }
 
 
-    localStorage.setItem("ktgChatName", name);
     sessionStorage.setItem(
         "chatName",
         name
@@ -2718,80 +2692,7 @@ window.getPlaceCoordinates =
     getPlaceCoordinates;
 
 </script>
-
-<script>
-/* Kolkata Tourist AI — Gemini-backed chat */
-(() => {
-  const form = document.getElementById('aiForm');
-  if (!form) return;
-  const input = document.getElementById('aiQuestion');
-  const send = document.getElementById('aiSend');
-  const messagesEl = document.getElementById('aiMessages');
-  const statusEl = document.getElementById('aiStatus');
-  const history = [];
-  let busy = false;
-
-  function addMessage(role, text) {
-    const bubble = document.createElement('div');
-    bubble.className = `ai-message ${role === 'user' ? 'ai-user' : 'ai-model'}`;
-    bubble.textContent = text;
-    messagesEl.appendChild(bubble);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-    return bubble;
-  }
-  function showTyping() {
-    const el = document.createElement('div');
-    el.className = 'ai-message ai-model ai-typing';
-    el.setAttribute('aria-label', 'AI is typing');
-    el.innerHTML = '<i></i><i></i><i></i>';
-    messagesEl.appendChild(el);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-    return el;
-  }
-  function getPlaceContext() {
-    const p = window.currentPlace || {};
-    return {
-      name: p.name || '', description: p.description || '', address: p.address || p.location || '',
-      metroStation: p.metroStation || p.metro || '', openingHours: p.openingHours || '',
-      closingDay: p.closingDay || '', ticketPrice: p.ticketPrice || '', attractions: p.attractions || '',
-      extraCharges: p.extraCharges || '', officialWebsite: p.officialWebsite || p.website || ''
-    };
-  }
-  async function sendQuestion(question) {
-    if (busy || !question.trim()) return;
-    busy = true; send.disabled = true; input.disabled = true;
-    addMessage('user', question);
-    const typing = showTyping();
-    statusEl.textContent = 'Kolkata Tourist AI is thinking…';
-    try {
-      const response = await fetch('/api/ai/chat', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: question, history, place: getPlaceContext() })
-      });
-      const data = await response.json().catch(() => ({}));
-      typing.remove();
-      if (!response.ok || !data.success) throw new Error(data.message || `Request failed (${response.status}).`);
-      addMessage('model', data.answer);
-      history.push({ role: 'user', text: question }, { role: 'model', text: data.answer });
-      if (history.length > 24) history.splice(0, history.length - 24);
-      statusEl.textContent = 'Powered by Gemini AI';
-    } catch (error) {
-      typing.remove();
-      addMessage('model', `দুঃখিত, এখন AI-এর সঙ্গে সংযোগ করা যাচ্ছে না। ${error.message}`);
-      statusEl.textContent = 'Check your Gemini API key and server connection.';
-    } finally {
-      busy = false; send.disabled = false; input.disabled = false; input.focus();
-    }
-  }
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    const question = input.value.trim();
-    if (!question) return;
-    input.value = '';
-    sendQuestion(question);
-  });
-})();
-</script>
-
+<script src="place-ai.js"></script>
+<script src="profile.js"></script>
 </body>
 </html>

@@ -224,6 +224,8 @@ const members = new Map();
 const locations = new Map();
 const messages = new Map();
 let myName = "";
+let myAvatar = "";
+try { const savedProfile = JSON.parse(localStorage.getItem("ktg-user-profile-v1") || localStorage.getItem("ktg-user-profile") || "null"); if(savedProfile && savedProfile.name){ myName=String(savedProfile.name).slice(0,60); myAvatar=String(savedProfile.avatar||""); } } catch(_) {}
 let replyingTo = null;
 let watchId = null;
 let map = null;
@@ -244,14 +246,14 @@ function openChat(){
   $("nameInput").blur();
   // Location is optional; the chat interface must open even when permission is denied.
   try { requestLocation(); } catch(e) {}
-  socket.emit("joinGroup", {groupId, name:myName});
+  socket.emit("joinGroup", {groupId, name:myName, avatar:myAvatar});
 }
 function updateMembers(){
   const list=[...members.values()];
   $("members").innerHTML = list.map(m=>{
     const mine = m.id === socket.id;
     return `<div class="member">
-      <div class="member-avatar">${escapeHtml(initials(m.name))}</div>
+      <div class="member-avatar">${m.avatar?`<img src="${escapeHtml(m.avatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:escapeHtml(initials(m.name))}</div>
       <div class="member-info">
         <span class="member-name">${escapeHtml(m.name)}${mine?" (you)":""}</span>
         <span class="member-status"><i class="online-dot"></i> Online</span>
@@ -271,7 +273,8 @@ function renderMessage(m){
   row.className=`message-row ${mine?"mine":""}`;
   row.dataset.messageId=m.messageId || "";
   const quoted = m.replyTo ? `<div class="quoted"><b>${escapeHtml(m.replyTo.name)}</b><div>${escapeHtml(m.replyTo.text)}</div></div>` : "";
-  const avatar=mine?"":`<div class="avatar">${escapeHtml(initials(m.name))}</div>`;
+  const senderAvatar=m.avatar || members.get(m.senderId)?.avatar || "";
+  const avatar=mine?"":`<div class="avatar">${senderAvatar?`<img src="${escapeHtml(senderAvatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:escapeHtml(initials(m.name))}</div>`;
   row.innerHTML=`${avatar}<div class="bubble"><strong>${escapeHtml(m.name)}</strong>${quoted}<div class="bubble-text">${escapeHtml(m.text)}</div><span class="meta">${timeLabel(m.createdAt)}</span><button class="reply-btn" type="button" data-reply="${escapeHtml(m.messageId||"")}">↩ Reply</button></div>`;
   $("messages").appendChild(row); scrollBottom();
 }
@@ -366,7 +369,7 @@ $("messageForm").addEventListener("submit",e=>{
 $("joinBtn").onclick=()=>{
   const value=$("nameInput").value.trim();
   if(value.length<2){$("nameInput").focus();return;}
-  myName=value.slice(0,60); sessionStorage.setItem("chatName",myName); openChat();
+  myName=value.slice(0,60); sessionStorage.setItem("chatName",myName); try{const p=JSON.parse(localStorage.getItem("ktg-user-profile-v1")||"null")||{};p.name=myName;localStorage.setItem("ktg-user-profile-v1",JSON.stringify(p));localStorage.setItem("ktg-user-profile",JSON.stringify(p));}catch(_){} openChat();
 };
 $("nameInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinBtn").click();});
 
@@ -381,14 +384,15 @@ socket.on("memberJoined",m=>{members.set(m.id,m);updateMembers();if(m.id!==socke
 socket.on("memberLeft",m=>{members.delete(m.id);locations.delete(m.id);const marker=mapMarkers.get(m.id);if(marker&&map)map.removeLayer(marker);mapMarkers.delete(m.id);updateMembers();renderLocationRows();addSystem(`${m.name} left the chat.`);});
 socket.on("chatMessage",renderMessage);
 socket.on("locationUpdate",m=>{if(!m||m.groupId!==groupId||!m.id)return;locations.set(m.id,m);renderLocationRows();if(map)updateMapMarker(m,m.id===socket.id);});
-socket.on("connect",()=>{if(myName)socket.emit("joinGroup",{groupId,name:myName});});
+socket.on("connect",()=>{if(myName)socket.emit("joinGroup",{groupId,name:myName,avatar:myAvatar});});
 socket.on("disconnect",()=>{ /* reconnect handled automatically by Socket.IO */ });
 
-const stored=sessionStorage.getItem("chatName");
-// Always ask on entry as requested. A stored name is offered as a convenient default only.
-if(stored)$("nameInput").value=stored;
-$("nameInput").focus();
+const storedProfile = (()=>{try{return JSON.parse(localStorage.getItem("ktg-user-profile-v1")||localStorage.getItem("ktg-user-profile")||"null")}catch(_){return null}})();
+if(storedProfile && storedProfile.name){myName=String(storedProfile.name).slice(0,60);myAvatar=String(storedProfile.avatar||"");$("nameGate").style.display="none";openChat();}
+else {const stored=sessionStorage.getItem("chatName");if(stored)$("nameInput").value=stored;$("nameInput").focus();}
+document.addEventListener("ktg:profile-updated",event=>{const p=event.detail||{};if(!p.name)return;myName=String(p.name).slice(0,60);myAvatar=String(p.avatar||"");$("nameGate").style.display="none";openChat();});
 
 </script>
+<script src="profile.js"></script>
 </body>
 </html>

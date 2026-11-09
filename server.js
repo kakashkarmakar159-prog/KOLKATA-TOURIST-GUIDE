@@ -2949,85 +2949,6 @@ app.post("/api/bookings", async (req,res)=>{
 });
 
 /* =========================================================
-   GEMINI AI CHAT — SERVER-SIDE (API KEY NEVER SENT TO BROWSER)
-========================================================= */
-app.post("/api/ai/chat", async (req, res) => {
-  try {
-    const apiKey = cleanString(process.env.GEMINI_API_KEY);
-    if (!apiKey) {
-      return sendJsonError(res, 503, "Gemini AI is not configured. Add GEMINI_API_KEY to your .env file and restart the server.");
-    }
-
-    const body = safeObject(req.body) ? req.body : {};
-    const question = cleanString(body.message).slice(0, 4000);
-    if (!question) return sendJsonError(res, 400, "Please enter a question.");
-
-    const place = safeObject(body.place) ? body.place : {};
-    const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
-    const placeContext = {
-      name: cleanString(place.name),
-      description: cleanString(place.description),
-      address: cleanString(place.address),
-      metroStation: cleanString(place.metroStation || place.metro),
-      openingHours: cleanString(place.openingHours),
-      closingDay: cleanString(place.closingDay),
-      ticketPrice: cleanString(place.ticketPrice),
-      attractions: cleanString(place.attractions),
-      extraCharges: cleanString(place.extraCharges),
-      officialWebsite: cleanString(place.officialWebsite)
-    };
-
-    const contents = [];
-    for (const item of history) {
-      if (!safeObject(item)) continue;
-      const role = item.role === "model" ? "model" : item.role === "user" ? "user" : "";
-      const text = cleanString(item.text).slice(0, 4000);
-      if (role && text) contents.push({ role, parts: [{ text }] });
-    }
-    contents.push({ role: "user", parts: [{ text: question }] });
-
-    const model = cleanString(process.env.GEMINI_MODEL) || "gemini-2.5-flash";
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const geminiResponse = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text:
-            "You are Kolkata Tourist AI, a friendly and accurate travel assistant for Kolkata, India. " +
-            "Answer in the language used by the visitor (Bengali or English). Keep answers clear and helpful. " +
-            "Use the current place information when relevant. Do not invent opening hours, prices, addresses, phone numbers, transport schedules, or policies. " +
-            "If a detail is missing or may have changed, say it should be verified with the venue. " +
-            "For unrelated questions, answer briefly and politely.\n\nCURRENT PLACE DATA:\n" + JSON.stringify(placeContext, null, 2)
-          }]
-        },
-        contents,
-        generationConfig: { temperature: 0.6, maxOutputTokens: 900 }
-      }),
-      signal: AbortSignal.timeout(30000)
-    });
-
-    const result = await geminiResponse.json().catch(() => ({}));
-    if (!geminiResponse.ok) {
-      const message = cleanString(result?.error?.message) || `Gemini request failed (${geminiResponse.status}).`;
-      console.error("Gemini API error:", message);
-      return sendJsonError(res, 502, message);
-    }
-
-    const answer = (result?.candidates?.[0]?.content?.parts || [])
-      .map(part => cleanString(part.text))
-      .filter(Boolean)
-      .join("\n");
-    if (!answer) return sendJsonError(res, 502, "AI did not return a response. Please try again.");
-    return res.json({ success: true, answer });
-  } catch (error) {
-    console.error("POST /api/ai/chat error:", error);
-    return sendJsonError(res, 500, error.name === "TimeoutError" ? "The AI took too long to respond. Please try again." : (error.message || "AI request failed."));
-  }
-});
-
-
-/* =========================================================
    API 404
 ========================================================= */
 
@@ -3072,17 +2993,19 @@ io.on("connection", socket => {
       io.to(socket.data.groupId).emit("memberLeft",{id:socket.id,name:socket.data.name||name});
     }
 
+    const avatar=String(payload.avatar||"").slice(0,420000);
     socket.data.groupId=groupId;
     socket.data.name=name;
+    socket.data.avatar=avatar;
     socket.join(groupId);
-    group.members.set(socket.id,{id:socket.id,name});
+    group.members.set(socket.id,{id:socket.id,name,avatar});
 
     socket.emit("groupState",{
       members:[...group.members.values()],
       locations:[...group.locations.values()],
       messages:group.messages.slice(-100)
     });
-    socket.to(groupId).emit("memberJoined",{id:socket.id,name});
+    socket.to(groupId).emit("memberJoined",{id:socket.id,name,avatar});
     console.log(`💬 ${name} joined ${groupId}`);
   });
 
