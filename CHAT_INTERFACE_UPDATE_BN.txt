@@ -1,0 +1,25 @@
+KOLKATA TOURIST GUIDE — CHAT INTERFACE UPDATE
+
+Updated:
+- Rebuilt the Booking / Group Chat screen for a full-height mobile-first layout.
+- Added clear live connection status, member chips with profile photos, message bubbles, timestamps, reply preview, typing indicator, and a fixed composer.
+- Removed any chat-specific name prompt. The chat reads the saved KTG Profile name and photo.
+- Added a stable browser user ID so messages sent before a page refresh still display as the current user's messages.
+- Added Socket.IO typing events on the existing Node server.
+- Configured chat-config.js to use the Render backend URL shown in the supplied screenshots.
+
+AI:
+- The Kolkata Tourist AI interface and AI implementation files were not changed.
+- Existing AI API/model settings are untouched.
+
+Deploy:
+1. Upload/replace the contents of this ZIP in the GitHub repository.
+2. Commit the changes.
+3. GitHub Pages will publish the updated chat.html/chat.js frontend.
+4. Confirm the Render service https://kolkata-tourist-guide.onrender.com is Live.
+5. Open a place and choose Booking / Group Chat. The chat connects to Render over Socket.IO.
+
+Important:
+- Real-time messages/typing/online members require the Render Node server to be running.
+- The current server stores the latest 100 messages per group in server memory. Refreshing the chat does not clear them while that server process is running, but a Render restart/redeploy can clear this in-memory history. Durable history across server restarts requires a database, which was not added in this UI-focused update.
+- Location sharing remains optional and requires browser permission on HTTPS.

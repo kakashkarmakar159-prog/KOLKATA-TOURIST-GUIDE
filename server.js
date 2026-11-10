@@ -2983,6 +2983,7 @@ io.on("connection", socket => {
     if(!safeObject(payload)) return;
     const groupId=String(payload.groupId||"").trim();
     const name=String(payload.name||"").trim().slice(0,60);
+    const userId=String(payload.userId||"").trim().slice(0,100);
     if(!groupId || !name) return;
 
     const group=getChatGroup(groupId);
@@ -2997,8 +2998,9 @@ io.on("connection", socket => {
     socket.data.groupId=groupId;
     socket.data.name=name;
     socket.data.avatar=avatar;
+    socket.data.userId=userId;
     socket.join(groupId);
-    group.members.set(socket.id,{id:socket.id,name,avatar});
+    group.members.set(socket.id,{id:socket.id,userId,name,avatar});
 
     socket.emit("groupState",{
       members:[...group.members.values()],
@@ -3022,6 +3024,7 @@ io.on("connection", socket => {
       id:socket.id,
       name:String(socket.data.name||payload.name||"Member").slice(0,60),
       avatar:String(socket.data.avatar||payload.avatar||"").slice(0,420000),
+      userId:String(socket.data.userId||"").slice(0,100),
       text,
       createdAt:Date.now(),
       replyTo:safeObject(payload.replyTo)?{
@@ -3033,6 +3036,21 @@ io.on("connection", socket => {
     group.messages.push(message);
     if(group.messages.length>100) group.messages.shift();
     io.to(groupId).emit("chatMessage",message);
+  });
+
+  socket.on("typingStart", payload => {
+    const groupId = String(payload?.groupId || socket.data.groupId || "").trim();
+    if (!groupId || socket.data.groupId !== groupId) return;
+    socket.to(groupId).emit("typingStart", {
+      id: socket.id,
+      name: String(socket.data.name || "Member").slice(0, 60)
+    });
+  });
+
+  socket.on("typingStop", payload => {
+    const groupId = String(payload?.groupId || socket.data.groupId || "").trim();
+    if (!groupId || socket.data.groupId !== groupId) return;
+    socket.to(groupId).emit("typingStop", { id: socket.id });
   });
 
   socket.on("locationUpdate", payload => {
@@ -3061,6 +3079,7 @@ io.on("connection", socket => {
       const group=getChatGroup(groupId);
       group.members.delete(socket.id);
       group.locations.delete(socket.id);
+      socket.to(groupId).emit("typingStop",{id:socket.id});
       socket.to(groupId).emit("memberLeft",{id:socket.id,name});
       if(group.members.size===0){
         // Keep recent messages briefly available in memory; locations/members are cleared.
