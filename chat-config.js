@@ -4,4 +4,4 @@
    window.KTG_CHAT_SERVER_URL = "https://your-ktg-server.example.com";
    If the website and Node server share the same origin, leave this empty.
 */
-window.KTG_CHAT_SERVER_URL = "";
+window.KTG_CHAT_SERVER_URL = "https://ktg.onrender.com";
