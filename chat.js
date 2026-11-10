@@ -1,200 +1,378 @@
+/* KTG real-time group chat — uses the saved browser profile identity. */
 "use strict";
 
-const socket = (typeof io === "function")
-  ? io({reconnection:true,reconnectionAttempts:8,timeout:8000})
-  : createOfflineChatSocket();
+(function () {
+  const params = new URLSearchParams(location.search);
+  const place = params.get("place") || params.get("id") || "group";
+  const groupId = `place-${place}`;
+  const $ = id => document.getElementById(id);
 
-function createOfflineChatSocket(){
-  const handlers=new Map();
-  const offlineId="local-"+Math.random().toString(36).slice(2,10);
-  return {
-    id:offlineId, connected:true,
-    on(event,fn){ if(!handlers.has(event)) handlers.set(event,[]); handlers.get(event).push(fn); return this; },
-    emit(event,payload){
-      const key="ktg-offline-chat-"+(payload?.groupId||"group");
-      if(event==="joinGroup"){
-        const saved=JSON.parse(localStorage.getItem(key)||"[]");
-        (handlers.get("groupState")||[]).forEach(fn=>fn({members:[{id:offlineId,name:payload.name}],locations:[],messages:saved}));
-      } else if(event==="chatMessage"){
-        const saved=JSON.parse(localStorage.getItem(key)||"[]");
-        const message={messageId:"local-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),senderId:offlineId,id:offlineId,name:payload.name||"Member",text:String(payload.text||""),replyTo:payload.replyTo||null,createdAt:Date.now()};
-        saved.push(message); localStorage.setItem(key,JSON.stringify(saved.slice(-200)));
-        (handlers.get("chatMessage")||[]).forEach(fn=>fn(message));
-      }
-      return this;
+  const members = new Map();
+  const locations = new Map();
+  const messages = new Map();
+  const mapMarkers = new Map();
+
+  let myName = "";
+  let myAvatar = "";
+  let replyingTo = null;
+  let watchId = null;
+  let map = null;
+  let joined = false;
+  let locationStarted = false;
+
+  function readProfile() {
+    try {
+      return JSON.parse(
+        localStorage.getItem("ktg-user-profile-v1") ||
+        localStorage.getItem("ktg-user-profile") ||
+        "null"
+      );
+    } catch (_) {
+      return null;
     }
-  };
-}
-
-const params = new URLSearchParams(location.search);
-const place = params.get("place") || params.get("id") || "group";
-const groupId = `place-${place}`;
-
-const $ = id => document.getElementById(id);
-const members = new Map();
-const locations = new Map();
-const messages = new Map();
-let myName = "";
-let replyingTo = null;
-let watchId = null;
-let map = null;
-const mapMarkers = new Map();
-
-function escapeHtml(value){
-  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch]));
-}
-function initials(name){
-  return String(name||"?").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "?";
-}
-function timeLabel(ts){
-  const d = new Date(ts || Date.now());
-  return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-}
-function openChat(){
-  $("nameGate").style.display="none";
-  $("nameInput").blur();
-  try { requestLocation(); } catch(e) {}
-  socket.emit("joinGroup", {groupId, name:myName});
-}
-function updateMembers(){
-  const list=[...members.values()];
-  $("members").innerHTML = list.map(m=>{
-    const mine = m.id === socket.id;
-    return `<div class="member">
-      <div class="member-avatar">${escapeHtml(initials(m.name))}</div>
-      <div class="member-info">
-        <span class="member-name">${escapeHtml(m.name)}${mine?" (you)":""}</span>
-        <span class="member-status"><i class="online-dot"></i> Online</span>
-      </div>
-    </div>`;
-  }).join("");
-}
-function addSystem(text){
-  const el=document.createElement("div"); el.className="system"; el.textContent=text; $("messages").appendChild(el); scrollBottom();
-}
-function renderMessage(m){
-  messages.set(m.messageId || `${m.id}-${m.createdAt}`, m);
-  const existing=document.querySelector(`[data-message-id="${CSS.escape(m.messageId || "")}"]`);
-  if(existing) return;
-  const mine=m.senderId===socket.id;
-  const row=document.createElement("div");
-  row.className=`message-row ${mine?"mine":""}`;
-  row.dataset.messageId=m.messageId || "";
-  const quoted = m.replyTo ? `<div class="quoted"><b>${escapeHtml(m.replyTo.name)}</b><div>${escapeHtml(m.replyTo.text)}</div></div>` : "";
-  const avatar=mine?"":`<div class="avatar">${escapeHtml(initials(m.name))}</div>`;
-  row.innerHTML=`${avatar}<div class="bubble"><strong>${escapeHtml(m.name)}</strong>${quoted}<div class="bubble-text">${escapeHtml(m.text)}</div><span class="meta">${timeLabel(m.createdAt)}</span><button class="reply-btn" type="button" data-reply="${escapeHtml(m.messageId||"")}">↩ Reply</button></div>`;
-  $("messages").appendChild(row); scrollBottom();
-}
-function scrollBottom(){const box=$("messages"); box.scrollTop=box.scrollHeight;}
-function setReply(m){
-  replyingTo=m;
-  $("replyBar").hidden=false;
-  $("replyName").textContent=m.name;
-  $("replyText").textContent=m.text;
-  $("messageInput").focus();
-}
-function clearReply(){replyingTo=null;$("replyBar").hidden=true;$("replyName").textContent="";$("replyText").textContent="";}
-
-function requestLocation(){
-  if(!navigator.geolocation){
-    $("trackStatus").textContent="This browser does not support live location.";
-    addSystem("Live location is not supported by this browser.");
-    return;
   }
-  $("trackStatus").textContent="Requesting your device location…";
-  watchId=navigator.geolocation.watchPosition(pos=>{
-    const payload={groupId,name:myName,lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy||null,timestamp:Date.now()};
-    locations.set(socket.id,{...payload,id:socket.id});
-    socket.emit("locationUpdate",payload);
-    $("trackStatus").textContent="Your live location is being shared with the group.";
-    $("myLocationText").textContent=`${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-    updateMapMarker({...payload,id:socket.id}, true);
-  }, err=>{
-    $("trackStatus").textContent = err.code===1 ? "Location permission was not granted." : "Could not read your live location.";
-    $("myLocationText").textContent="Location not shared";
-  }, {enableHighAccuracy:true,maximumAge:3000,timeout:15000});
-}
-function ensureMap(){
-  if(map) return;
-  map=L.map("liveMap",{zoomControl:true}).setView([22.5726,88.3639],12);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(map);
-}
-function updateMapMarker(m,isMe=false){
-  if(!map) return;
-  const pos=[m.lat,m.lng];
-  let marker=mapMarkers.get(m.id);
-  if(!marker){
-    marker=L.marker(pos).addTo(map); mapMarkers.set(m.id,marker);
-  } else marker.setLatLng(pos);
-  marker.bindPopup(`<b>${escapeHtml(m.name||"Member")}${isMe?" (You)":""}</b><br>Live location`).openPopup();
-  renderLocationRows();
-}
-function renderLocationRows(){
-  const rows=[...locations.values()];
-  $("otherLocationRows").innerHTML=rows.filter(x=>x.id!==socket.id).map(x=>`<div class="location-member"><span class="dot"></span><b>${escapeHtml(x.name)}</b><span>${Number(x.lat).toFixed(5)}, ${Number(x.lng).toFixed(5)}</span></div>`).join("");
-}
-function openTrack(){
-  $("trackDrawer").classList.add("open"); $("trackDrawer").setAttribute("aria-hidden","false"); ensureMap(); setTimeout(()=>map.invalidateSize(),80);
-  if(locations.size){const arr=[...locations.values()]; arr.forEach(x=>updateMapMarker(x,x.id===socket.id)); const bounds=L.latLngBounds(arr.map(x=>[x.lat,x.lng])); if(bounds.isValid()) map.fitBounds(bounds.pad(.25));}
-}
-function closeTrack(){$("trackDrawer").classList.remove("open");$("trackDrawer").setAttribute("aria-hidden","true");}
 
-function setupTheme(){
-  const saved=localStorage.getItem("ktg-chat-theme");
-  if(saved === "dark") document.body.classList.add("dark");
-  updateThemeButton();
-  const btn=$("themeBtn");
-  if(btn) btn.onclick=()=>{
-    document.body.classList.toggle("dark");
-    localStorage.setItem("ktg-chat-theme", document.body.classList.contains("dark")?"dark":"light");
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[ch]));
+  }
+
+  function initials(name) {
+    return String(name || "?").trim().split(/\s+/).slice(0, 2)
+      .map(part => part[0] || "").join("").toUpperCase() || "?";
+  }
+
+  function timeLabel(timestamp) {
+    return new Date(timestamp || Date.now()).toLocaleTimeString([], {
+      hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function addSystem(text) {
+    const container = $("messages");
+    if (!container) return;
+    const item = document.createElement("div");
+    item.className = "system";
+    item.textContent = text;
+    container.appendChild(item);
+    scrollBottom();
+  }
+
+  function scrollBottom() {
+    const container = $("messages");
+    if (container) container.scrollTop = container.scrollHeight;
+  }
+
+  function updateIdentity(profile) {
+    if (!profile || !profile.name) return false;
+    myName = String(profile.name).trim().slice(0, 60);
+    myAvatar = String(profile.avatar || "");
+    const caption = document.querySelector(".name-caption");
+    if (caption) caption.textContent = `Chatting as ${myName}`;
+    return myName.length >= 2;
+  }
+
+  function openChat() {
+    if (!myName) {
+      addSystem("Please create your profile before joining the chat.");
+      if (window.KTGProfile) window.KTGProfile.open(false);
+      return;
+    }
+    if (!joined) {
+      joined = true;
+      if (!locationStarted) {
+        locationStarted = true;
+        requestLocation();
+      }
+    }
+    socket.emit("joinGroup", { groupId, name: myName, avatar: myAvatar });
+  }
+
+  function updateMembers() {
+    const container = $("members");
+    if (!container) return;
+    const list = [...members.values()];
+    container.innerHTML = list.map(member => {
+      const mine = member.id === socket.id;
+      const avatar = member.avatar
+        ? `<img src="${escapeHtml(member.avatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : escapeHtml(initials(member.name));
+      return `<div class="member">
+        <div class="member-avatar">${avatar}</div>
+        <div class="member-info">
+          <span class="member-name">${escapeHtml(member.name)}${mine ? " (you)" : ""}</span>
+          <span class="member-status"><i class="online-dot"></i> Online</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderMessage(message) {
+    if (!message) return;
+    const key = message.messageId || `${message.senderId || message.id}-${message.createdAt}`;
+    if (messages.has(key)) return;
+    messages.set(key, message);
+
+    const container = $("messages");
+    if (!container) return;
+
+    const mine = message.senderId === socket.id;
+    const row = document.createElement("div");
+    row.className = `message-row ${mine ? "mine" : ""}`;
+    row.dataset.messageId = key;
+
+    const quoted = message.replyTo
+      ? `<div class="quoted"><b>${escapeHtml(message.replyTo.name)}</b><div>${escapeHtml(message.replyTo.text)}</div></div>`
+      : "";
+    const senderAvatar = message.avatar || members.get(message.senderId)?.avatar || "";
+    const avatar = mine ? "" : `<div class="avatar">${
+      senderAvatar
+        ? `<img src="${escapeHtml(senderAvatar)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : escapeHtml(initials(message.name))
+    }</div>`;
+
+    row.innerHTML = `${avatar}<div class="bubble">
+      <strong>${escapeHtml(message.name || "Member")}</strong>
+      ${quoted}
+      <div class="bubble-text">${escapeHtml(message.text)}</div>
+      <span class="meta">${timeLabel(message.createdAt)}</span>
+      <button class="reply-btn" type="button" data-reply="${escapeHtml(key)}">↩ Reply</button>
+    </div>`;
+    container.appendChild(row);
+    scrollBottom();
+  }
+
+  function setReply(message) {
+    replyingTo = message;
+    $("replyBar").hidden = false;
+    $("replyName").textContent = message.name || "Member";
+    $("replyText").textContent = message.text || "";
+    $("messageInput").focus();
+  }
+
+  function clearReply() {
+    replyingTo = null;
+    $("replyBar").hidden = true;
+    $("replyName").textContent = "";
+    $("replyText").textContent = "";
+  }
+
+  function requestLocation() {
+    if (watchId !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    if (!navigator.geolocation) {
+      $("trackStatus").textContent = "This browser does not support live location.";
+      return;
+    }
+    $("trackStatus").textContent = "Requesting your device location…";
+    watchId = navigator.geolocation.watchPosition(position => {
+      const payload = {
+        groupId, name: myName,
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy || null,
+        timestamp: Date.now()
+      };
+      locations.set(socket.id, { ...payload, id: socket.id });
+      socket.emit("locationUpdate", payload);
+      $("trackStatus").textContent = "Your live location is being shared with the group.";
+      $("myLocationText").textContent = `${payload.lat.toFixed(5)}, ${payload.lng.toFixed(5)}`;
+      if (map) updateMapMarker({ ...payload, id: socket.id }, true);
+    }, error => {
+      $("trackStatus").textContent = error.code === 1
+        ? "Location permission was not granted."
+        : "Could not read your live location.";
+      $("myLocationText").textContent = "Location not shared";
+    }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 });
+  }
+
+  function ensureMap() {
+    if (map || typeof L === "undefined") return;
+    map = L.map("liveMap", { zoomControl: true }).setView([22.5726, 88.3639], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+  }
+
+  function updateMapMarker(memberLocation, isMe = false) {
+    if (!map || !memberLocation) return;
+    const position = [memberLocation.lat, memberLocation.lng];
+    let marker = mapMarkers.get(memberLocation.id);
+    if (!marker) {
+      marker = L.marker(position).addTo(map);
+      mapMarkers.set(memberLocation.id, marker);
+    } else {
+      marker.setLatLng(position);
+    }
+    marker.bindPopup(
+      `<b>${escapeHtml(memberLocation.name || "Member")}${isMe ? " (You)" : ""}</b><br>Live location`
+    );
+    renderLocationRows();
+  }
+
+  function renderLocationRows() {
+    const container = $("otherLocationRows");
+    if (!container) return;
+    container.innerHTML = [...locations.values()]
+      .filter(item => item.id !== socket.id)
+      .map(item => `<div class="location-member"><span class="dot"></span><b>${escapeHtml(item.name)}</b><span>${Number(item.lat).toFixed(5)}, ${Number(item.lng).toFixed(5)}</span></div>`)
+      .join("");
+  }
+
+  function openTrack() {
+    $("trackDrawer").classList.add("open");
+    $("trackDrawer").setAttribute("aria-hidden", "false");
+    ensureMap();
+    if (map) {
+      setTimeout(() => map.invalidateSize(), 80);
+      const points = [...locations.values()];
+      points.forEach(item => updateMapMarker(item, item.id === socket.id));
+      if (points.length) {
+        const bounds = L.latLngBounds(points.map(item => [item.lat, item.lng]));
+        if (bounds.isValid()) map.fitBounds(bounds.pad(.25));
+      }
+    } else {
+      $("trackStatus").textContent = "Map service is unavailable. Check your internet connection.";
+    }
+  }
+
+  function closeTrack() {
+    $("trackDrawer").classList.remove("open");
+    $("trackDrawer").setAttribute("aria-hidden", "true");
+  }
+
+  function setupTheme() {
+    const saved = localStorage.getItem("ktg-chat-theme");
+    if (saved === "dark") document.body.classList.add("dark");
     updateThemeButton();
-    if(map) setTimeout(()=>map.invalidateSize(),60);
-  };
-}
-function updateThemeButton(){
-  const btn=$("themeBtn");
-  if(btn) btn.textContent=document.body.classList.contains("dark")?"☼":"☾";
-}
+    $("themeBtn").onclick = () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("ktg-chat-theme", document.body.classList.contains("dark") ? "dark" : "light");
+      updateThemeButton();
+      if (map) setTimeout(() => map.invalidateSize(), 60);
+    };
+  }
 
-$("groupTitle").textContent=place.replaceAll("-"," ");
-setupTheme();
-$("backBtn").onclick=()=>history.back();
-$("trackBtn").onclick=openTrack;
-$("closeTrack").onclick=closeTrack;
-$("trackDrawer").addEventListener("click",e=>{if(e.target===$("trackDrawer"))closeTrack();});
-$("cancelReply").onclick=clearReply;
-$("messages").addEventListener("click",e=>{
-  const btn=e.target.closest("[data-reply]"); if(!btn)return;
-  const m=messages.get(btn.dataset.reply); if(m)setReply(m);
-});
-$("messageForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const input=$("messageInput"); const text=input.value.trim(); if(!text)return;
-  socket.emit("chatMessage",{groupId,name:myName,text,replyTo:replyingTo?{messageId:replyingTo.messageId,name:replyingTo.name,text:replyingTo.text}:null});
-  input.value=""; clearReply();
-});
-$("joinBtn").onclick=()=>{
-  const value=$("nameInput").value.trim();
-  if(value.length<2){$("nameInput").focus();return;}
-  myName=value.slice(0,60); sessionStorage.setItem("chatName",myName); openChat();
-};
-$("nameInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinBtn").click();});
+  function updateThemeButton() {
+    $("themeBtn").textContent = document.body.classList.contains("dark") ? "☼" : "☾";
+  }
 
-socket.on("groupState",state=>{
-  (state.members||[]).forEach(m=>members.set(m.id,m));
-  (state.locations||[]).forEach(m=>locations.set(m.id,m));
-  (state.messages||[]).forEach(renderMessage);
-  updateMembers(); renderLocationRows();
-  if(map) [...locations.values()].forEach(x=>updateMapMarker(x,x.id===socket.id));
-});
-socket.on("memberJoined",m=>{members.set(m.id,m);updateMembers();if(m.id!==socket.id)addSystem(`${m.name} joined the chat.`);});
-socket.on("memberLeft",m=>{members.delete(m.id);locations.delete(m.id);const marker=mapMarkers.get(m.id);if(marker&&map)map.removeLayer(marker);mapMarkers.delete(m.id);updateMembers();renderLocationRows();addSystem(`${m.name} left the chat.`);});
-socket.on("chatMessage",renderMessage);
-socket.on("locationUpdate",m=>{if(!m||m.groupId!==groupId||!m.id)return;locations.set(m.id,m);renderLocationRows();if(map)updateMapMarker(m,m.id===socket.id);});
-socket.on("connect",()=>{if(myName)socket.emit("joinGroup",{groupId,name:myName});});
-socket.on("disconnect",()=>{ /* reconnect handled automatically by Socket.IO */ });
+  // Socket.IO is the real-time transport. The server broadcasts new messages
+  // and member/location changes to every connected member of this place group.
+  const chatServerUrl = String(window.KTG_CHAT_SERVER_URL || "").trim();
+  const socketOptions = { reconnection: true, reconnectionAttempts: 8, timeout: 8000 };
+  const socket = typeof io === "function"
+    ? (chatServerUrl ? io(chatServerUrl, socketOptions) : io(socketOptions))
+    : null;
 
-const stored=sessionStorage.getItem("chatName");
-// Always ask on entry as requested. A stored name is offered as a convenient default only.
-if(stored)$("nameInput").value=stored;
-$("nameInput").focus();
+  $("groupTitle").textContent = place.replaceAll("-", " ");
+  setupTheme();
+  $("backBtn").onclick = () => history.back();
+  $("trackBtn").onclick = openTrack;
+  $("closeTrack").onclick = closeTrack;
+  $("trackDrawer").addEventListener("click", event => {
+    if (event.target === $("trackDrawer")) closeTrack();
+  });
+  $("cancelReply").onclick = clearReply;
+
+  $("messages").addEventListener("click", event => {
+    const button = event.target.closest("[data-reply]");
+    if (!button) return;
+    const message = messages.get(button.dataset.reply);
+    if (message) setReply(message);
+  });
+
+  $("messageForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const input = $("messageInput");
+    const text = input.value.trim();
+    if (!text) return;
+    if (!socket || !socket.connected) {
+      addSystem("Live chat server is not connected. Please try again in a moment.");
+      return;
+    }
+    socket.emit("chatMessage", {
+      groupId, text,
+      replyTo: replyingTo ? {
+        messageId: replyingTo.messageId,
+        name: replyingTo.name,
+        text: replyingTo.text
+      } : null
+    });
+    input.value = "";
+    clearReply();
+  });
+
+  if (socket) {
+    socket.on("groupState", state => {
+      (state.members || []).forEach(member => members.set(member.id, member));
+      (state.locations || []).forEach(item => locations.set(item.id, item));
+      (state.messages || []).forEach(renderMessage);
+      updateMembers();
+      renderLocationRows();
+      if (map) [...locations.values()].forEach(item => updateMapMarker(item, item.id === socket.id));
+    });
+
+    socket.on("memberJoined", member => {
+      members.set(member.id, member);
+      updateMembers();
+      if (member.id !== socket.id) addSystem(`${member.name} joined the chat.`);
+    });
+
+    socket.on("memberLeft", member => {
+      members.delete(member.id);
+      locations.delete(member.id);
+      const marker = mapMarkers.get(member.id);
+      if (marker && map) map.removeLayer(marker);
+      mapMarkers.delete(member.id);
+      updateMembers();
+      renderLocationRows();
+      addSystem(`${member.name} left the chat.`);
+    });
+
+    socket.on("chatMessage", renderMessage);
+
+    socket.on("locationUpdate", item => {
+      if (!item || item.groupId !== groupId || !item.id) return;
+      locations.set(item.id, item);
+      renderLocationRows();
+      if (map) updateMapMarker(item, item.id === socket.id);
+    });
+
+    socket.on("connect", () => {
+      const profile = readProfile();
+      if (updateIdentity(profile)) openChat();
+    });
+
+    socket.on("connect_error", () => {
+      $("trackStatus").textContent = "Connecting to live chat server…";
+    });
+
+    socket.on("disconnect", () => {
+      $("trackStatus").textContent = "Disconnected. Reconnecting to live chat…";
+    });
+  } else {
+    addSystem("Live chat needs the Kolkata Tourist Guide server to be running.");
+  }
+
+  // The profile is the single source of identity. Never ask for a second chat name.
+  const initialProfile = readProfile();
+  if (updateIdentity(initialProfile)) {
+    openChat();
+  } else {
+    $("name-caption")?.remove();
+    addSystem("Create your profile to start chatting. Your profile name and photo will be used automatically.");
+  }
+
+  document.addEventListener("ktg:profile-updated", event => {
+    if (!updateIdentity(event.detail)) return;
+    if (socket && socket.connected) openChat();
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+  });
+})();
